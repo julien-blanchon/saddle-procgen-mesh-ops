@@ -345,7 +345,11 @@ fn demo_stats(mesh: &EditableMesh) -> DemoStats {
     }
 }
 
-fn find_edge_by_endpoints(mesh: &HalfEdgeMesh, a: usize, b: usize) -> Option<saddle_procgen_mesh_ops::EdgeId> {
+fn find_edge_by_endpoints(
+    mesh: &HalfEdgeMesh,
+    a: usize,
+    b: usize,
+) -> Option<saddle_procgen_mesh_ops::EdgeId> {
     mesh.edge_ids().find(|edge| {
         mesh.edge_endpoints(*edge)
             .map(|(left, right)| {
