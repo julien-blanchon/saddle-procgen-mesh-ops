@@ -1,4 +1,4 @@
-use std::time::Instant;
+use bevy::platform::time::Instant;
 
 use saddle_procgen_mesh_ops::HalfEdgeMesh;
 

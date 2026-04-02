@@ -305,19 +305,19 @@ fn sync_diagnostics(
 ) {
     diagnostics.extrude = meshes
         .get(entities.extrude)
-        .map(|mesh| demo_stats(mesh))
+        .map(demo_stats)
         .unwrap_or_default();
     diagnostics.bevel = meshes
         .get(entities.bevel)
-        .map(|mesh| demo_stats(mesh))
+        .map(demo_stats)
         .unwrap_or_default();
     diagnostics.subdivision = meshes
         .get(entities.subdivision)
-        .map(|mesh| demo_stats(mesh))
+        .map(demo_stats)
         .unwrap_or_default();
     diagnostics.crater = meshes
         .get(entities.crater)
-        .map(|mesh| demo_stats(mesh))
+        .map(demo_stats)
         .unwrap_or_default();
 }
 
