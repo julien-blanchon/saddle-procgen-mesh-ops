@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy_e2e::{action::Action, actions::assertions, scenario::Scenario};
+use saddle_bevy_e2e::{action::Action, actions::assertions, scenario::Scenario};
 
 use crate::{
     LabDiagnostics, trigger_bevel, trigger_crater_steps, trigger_extrude, trigger_subdivide,
@@ -16,7 +16,7 @@ pub struct MeshOpsLabE2EPlugin;
 
 impl Plugin for MeshOpsLabE2EPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins(bevy_e2e::E2EPlugin);
+        app.add_plugins(saddle_bevy_e2e::E2EPlugin);
         app.init_resource::<BeforeLabSnapshot>();
         let args: Vec<String> = std::env::args().collect();
         let (scenario_name, handoff) = parse_e2e_args(&args);
@@ -25,7 +25,7 @@ impl Plugin for MeshOpsLabE2EPlugin {
                 if handoff {
                     scenario.actions.push(Action::Handoff);
                 }
-                bevy_e2e::init_scenario(app, scenario);
+                saddle_bevy_e2e::init_scenario(app, scenario);
             } else {
                 error!(
                     "[mesh_ops_lab:e2e] Unknown scenario '{name}'. Available: {:?}",
