@@ -1,7 +1,10 @@
 use bevy::{ecs::message::Messages, prelude::*};
 
 use super::*;
-use crate::{EditableMesh, MeshOpsPlugin, MeshOpsRequest, MeshOpsTarget, VertexId};
+use crate::{
+    EditableMesh, MeshBooleanConfig, MeshBooleanOperation, MeshOpsPlugin, MeshOpsRequest,
+    MeshOpsTarget, VertexId,
+};
 
 fn setup_app() -> (App, Entity) {
     let mut app = App::new();
@@ -152,4 +155,38 @@ fn multiple_entities_edit_independently() {
     assert_eq!(editable_a.mesh.face_count(), 24);
     assert_eq!(editable_b.mesh.face_count(), 6);
     assert!(editable_a.revision > editable_b.revision);
+}
+
+#[test]
+fn boolean_requests_rebuild_the_target_mesh() {
+    let (mut app, entity) = setup_app();
+    app.update();
+
+    let mut other = HalfEdgeMesh::unit_cube().expect("cube");
+    let vertices = other.vertex_ids().collect::<Vec<_>>();
+    other
+        .offset_vertices(&vertices, Vec3::new(0.35, 0.2, 0.0))
+        .expect("offset");
+
+    app.world_mut().write_message(MeshOpsRequest {
+        entity,
+        command: MeshEditCommand::Boolean {
+            other,
+            operation: MeshBooleanOperation::Difference,
+            config: MeshBooleanConfig {
+                voxel_size: 0.12,
+                padding_voxels: 1,
+                max_cells_per_axis: 32,
+            },
+        },
+        prefer_async: false,
+    });
+    app.update();
+
+    let editable = app
+        .world()
+        .get::<EditableMesh>(entity)
+        .expect("editable after boolean");
+    assert!(editable.mesh.is_closed());
+    assert!(editable.mesh.face_count() > 6);
 }

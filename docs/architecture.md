@@ -7,11 +7,12 @@
 1. Pure core:
    - dense typed-ID half-edge/DCEL-style topology
    - polygon snapshot rebuild path for complex edits
+   - voxel boolean CSG for closed-mesh union / intersection / difference
    - validation, traversal, conversion helpers
 2. Thin Bevy runtime:
    - `EditableMesh` + `MeshOpsTarget` components
    - `MeshOpsRequest` / `MeshTopologyChanged` / `MeshOpsFailed` messages
-   - async subdivision handoff
+   - async subdivision / boolean handoff
    - sync back to `Assets<Mesh>`
    - optional gizmo debug draw
 
@@ -75,6 +76,7 @@ Loop attributes are first-class because UV seams, hard normals, and tangents are
 
 - Small, local operations either mutate payloads directly or edit a `MeshSnapshot`.
 - Snapshot edits rebuild the half-edge topology with `HalfEdgeMesh::from_snapshot(...)`.
+- Boolean CSG samples closed operands into a bounded voxel grid, reconstructs exposed quads, and then rebuilds through the same validated snapshot path.
 - Rebuilds re-run validation immediately, so broken edits fail fast.
 
 This pass intentionally favors:
@@ -115,6 +117,7 @@ Export:
 ## Async Job Flow
 
 - Async work is used only for selected heavy operations, currently subdivision.
+- Boolean requests can also move off-thread when their configured face threshold is exceeded.
 - Each job stores the mesh revision it was spawned from.
 - On completion:
   - if the entity still exists and the revision still matches, the result is applied

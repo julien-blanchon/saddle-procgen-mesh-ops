@@ -1,6 +1,7 @@
 #![doc = include_str!("../README.md")]
 
 mod attributes;
+mod boolean;
 pub mod components;
 mod conversion;
 pub mod debug;
@@ -11,16 +12,19 @@ mod mesh;
 pub mod messages;
 mod operations;
 pub mod resources;
+mod simplify;
 mod systems;
 mod topology;
 
 pub use attributes::{FacePayload, LoopAttributes, VertexPayload};
+pub use boolean::{MeshBooleanConfig, MeshBooleanOperation};
 pub use components::{EditableMesh, MeshOpsDebugSettings, MeshOpsDebugView, MeshOpsTarget};
 pub use error::MeshError;
 pub use ids::{EdgeId, FaceId, HalfEdgeId, VertexId};
 pub use mesh::{FaceKind, HalfEdgeMesh};
 pub use messages::{MeshEditCommand, MeshOpsFailed, MeshOpsRequest, MeshTopologyChanged};
 pub use resources::MeshOpsConfig;
+pub use simplify::{MeshDecimationConfig, MeshLodConfig, MeshLodLevel};
 pub use topology::{MeshSnapshot, PolygonFace};
 
 use bevy::{
@@ -113,6 +117,8 @@ impl Plugin for MeshOpsPlugin {
             .register_type::<HalfEdgeId>()
             .register_type::<HalfEdgeMesh>()
             .register_type::<LoopAttributes>()
+            .register_type::<MeshBooleanConfig>()
+            .register_type::<MeshBooleanOperation>()
             .register_type::<MeshEditCommand>()
             .register_type::<MeshOpsConfig>()
             .register_type::<MeshOpsDebugSettings>()

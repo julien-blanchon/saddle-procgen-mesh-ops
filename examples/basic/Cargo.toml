@@ -5,6 +5,8 @@ edition = "2024"
 publish = false
 
 [dependencies]
+bevy = { workspace = true }
+saddle-pane = { workspace = true }
 saddle-procgen-mesh-ops = { workspace = true }
 
 [lints]

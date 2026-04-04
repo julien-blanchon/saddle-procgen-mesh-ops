@@ -35,6 +35,15 @@ pub enum MeshError {
     RequiresTriangleFaces { operation: &'static str },
     #[error("operation {operation} requires a closed mesh")]
     RequiresClosedMesh { operation: &'static str },
+    #[error("invalid boolean config: {0}")]
+    InvalidBooleanConfig(String),
+    #[error("boolean voxel grid {x}x{y}x{z} exceeds configured max axis {max_axis}")]
+    BooleanGridTooDense {
+        x: u32,
+        y: u32,
+        z: u32,
+        max_axis: u32,
+    },
     #[error("operation {operation} is not implemented for this selection in pass 1: {detail}")]
     UnsupportedOperation {
         operation: &'static str,

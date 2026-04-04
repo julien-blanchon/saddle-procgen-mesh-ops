@@ -1,8 +1,10 @@
 use bevy::prelude::*;
 
-use crate::{EdgeId, FaceId, MeshError, VertexId};
+use crate::{
+    EdgeId, FaceId, HalfEdgeMesh, MeshBooleanConfig, MeshBooleanOperation, MeshError, VertexId,
+};
 
-#[derive(Debug, Clone, PartialEq, Reflect)]
+#[derive(Debug, Clone, Reflect)]
 pub enum MeshEditCommand {
     AddFace {
         vertices: Vec<VertexId>,
@@ -58,6 +60,11 @@ pub enum MeshEditCommand {
     RecomputeNormals,
     RecomputeTangents,
     TriangulateFaces,
+    Boolean {
+        other: HalfEdgeMesh,
+        operation: MeshBooleanOperation,
+        config: MeshBooleanConfig,
+    },
 }
 
 #[derive(Message, Debug, Clone, Reflect)]

@@ -82,6 +82,8 @@ fn request_edit(
 - `EditableMesh`, `MeshOpsTarget`, `MeshOpsDebugView`: ECS-facing components
 - `MeshOpsRequest`, `MeshTopologyChanged`, `MeshOpsFailed`: message surface for runtime editing
 - `MeshOpsConfig`, `MeshOpsDebugSettings`: runtime policy resources for sync, normals/tangents, async thresholds, and gizmo appearance
+- `MeshBooleanConfig`, `MeshBooleanOperation`: voxel-boolean CSG controls for union, intersection, and difference on closed meshes
+- `MeshDecimationConfig`, `MeshLodConfig`, `MeshLodLevel`: pure-core simplification controls for runtime-generated LODs
 - `MeshSnapshot`, `PolygonFace`: polygon snapshot surface for tests, offline tools, and deterministic rebuilds
 
 ## Supported Operations
@@ -105,6 +107,10 @@ Higher-level operations:
 - `subdivide_loop`
 - `merge_vertices`
 - `weld_by_position_and_attributes`
+- `boolean_with`
+- `apply_boolean`
+- `decimate`
+- `build_lod_chain`
 - `offset_vertices`
 - `recompute_normals`
 - `recompute_tangents`
@@ -114,6 +120,7 @@ Higher-level operations:
 Pass 1 intentionally keeps some operations narrow:
 
 - `bevel_edges` is implemented for a single interior edge shared by two triangles and is meant for strip-style chamfering demos, cleanup, and tooling.
+- Boolean CSG is currently voxelized rather than analytic: it targets closed meshes, exposes the voxel size directly, and favors robustness and game-runtime predictability over exact surface preservation.
 - Triangle and quad heavy workflows are the best-covered paths today.
 - Topology-changing operations rebuild the authoritative half-edge mesh from validated polygon snapshots, prioritizing correctness and clear failure modes over in-place mutation performance.
 
@@ -135,11 +142,12 @@ Pass 1 intentionally keeps some operations narrow:
 
 | Example | Description | Run |
 | --- | --- | --- |
-| `basic` | Headless pure-core construction, validation, and conversion | `cargo run -p saddle-procgen-mesh-ops-example-basic` |
-| `extrude` | Minimal 3D Bevy scene applying a face extrusion at startup | `cargo run -p saddle-procgen-mesh-ops-example-extrude` |
-| `subdivision` | Side-by-side Catmull-Clark and Loop subdivision preview | `cargo run -p saddle-procgen-mesh-ops-example-subdivision` |
-| `runtime` | ECS request pipeline with async subdivision and dirty mesh sync | `cargo run -p saddle-procgen-mesh-ops-example-runtime` |
-| `perf` | Headless timing probe for import/export and subdivision hot paths | `cargo run -p saddle-procgen-mesh-ops-example-perf` |
+| `basic` | Pane-driven topology starter scene for repeated face pokes and smoothing | `cargo run -p saddle-procgen-mesh-ops-example-basic` |
+| `csg_boolean` | Pane-driven fortress breach scene showing voxel union, intersection, and difference | `cargo run -p saddle-procgen-mesh-ops-example-csg-boolean` |
+| `extrude` | Pane-driven tower-block extrusion scene with optional smoothing | `cargo run -p saddle-procgen-mesh-ops-example-extrude` |
+| `subdivision` | Pane-driven side-by-side Catmull-Clark and Loop comparison | `cargo run -p saddle-procgen-mesh-ops-example-subdivision` |
+| `runtime` | Runtime request-pipeline demo with live subdivision cadence controls | `cargo run -p saddle-procgen-mesh-ops-example-runtime` |
+| `perf` | Interactive LOD dashboard covering export/import timings and decimation output | `cargo run -p saddle-procgen-mesh-ops-example-perf` |
 | `saddle-procgen-mesh-ops-lab` | Rich crate-local BRP/E2E verification app | `cargo run -p saddle-procgen-mesh-ops-lab` |
 
 ## Bevy Notes

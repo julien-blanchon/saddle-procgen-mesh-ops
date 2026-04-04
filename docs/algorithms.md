@@ -32,6 +32,7 @@ These operations rebuild through `MeshSnapshot` where that keeps the code simple
 - `subdivide_loop`
 - `merge_vertices`
 - `weld_by_position_and_attributes`
+- voxelized boolean CSG (`union`, `intersection`, `difference`)
 - `offset_vertices`
 - `triangulate_faces`
 - `separate_connected_components`
@@ -56,6 +57,7 @@ Approximate pass-1 costs:
 - `extrude_faces`: `O(F + selected_face_corners)`
 - `subdivide_catmull_clark`: `O(V + E + F)` per level
 - `subdivide_loop`: `O(V + E + F)` per level on triangle meshes
+- voxel boolean CSG: `O(grid_cells * operand_triangles)` for occupancy sampling plus `O(exposed_voxel_faces)` for reconstruction
 - `recompute_normals`: `O(V + F)`
 - `recompute_tangents`: `O(face corners)`
 
@@ -76,7 +78,7 @@ Approximate pass-1 costs:
 
 Future extension space intentionally left open:
 
-- QEM simplification / runtime LOD
+- analytic / attribute-preserving CSG
 - hole filling
 - isotropic remeshing
 - ray queries / BVH

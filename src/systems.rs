@@ -217,19 +217,21 @@ fn should_run_async(
     config: &MeshOpsConfig,
     prefer_async: bool,
 ) -> bool {
-    if !config.allow_async_subdivision {
-        return false;
+    match command {
+        MeshEditCommand::SubdivideCatmullClark { .. } | MeshEditCommand::SubdivideLoop { .. } => {
+            if !config.allow_async_subdivision {
+                return false;
+            }
+            prefer_async || face_count >= config.async_face_threshold
+        }
+        MeshEditCommand::Boolean { other, .. } => {
+            if !config.allow_async_boolean_ops {
+                return false;
+            }
+            prefer_async || face_count + other.face_count() >= config.boolean_async_face_threshold
+        }
+        _ => false,
     }
-
-    prefer_async
-        && matches!(
-            command,
-            MeshEditCommand::SubdivideCatmullClark { .. } | MeshEditCommand::SubdivideLoop { .. }
-        )
-        || matches!(
-            command,
-            MeshEditCommand::SubdivideCatmullClark { .. } | MeshEditCommand::SubdivideLoop { .. }
-        ) && face_count >= config.async_face_threshold
 }
 
 fn postprocess(
@@ -314,6 +316,14 @@ fn apply_command(mesh: &mut HalfEdgeMesh, command: &MeshEditCommand) -> Result<b
         }
         MeshEditCommand::TriangulateFaces => {
             mesh.triangulate_faces()?;
+            Ok(true)
+        }
+        MeshEditCommand::Boolean {
+            other,
+            operation,
+            config,
+        } => {
+            mesh.apply_boolean(other, *operation, config)?;
             Ok(true)
         }
     }

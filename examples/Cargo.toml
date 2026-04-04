@@ -1,6 +1,7 @@
 [workspace]
 members = [
     "basic",
+    "csg_boolean",
     "extrude",
     "subdivision",
     "runtime",
@@ -12,6 +13,7 @@ resolver = "3"
 [workspace.dependencies]
 bevy = { version = "0.18", features = ["serialize"] }
 saddle-procgen-mesh-ops = { path = ".." }
+saddle-pane = { git = "https://github.com/julien-blanchon/saddle-pane" }
 
 [workspace.lints.clippy]
 too_many_arguments = "allow"
