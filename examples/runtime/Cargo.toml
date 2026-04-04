@@ -6,8 +6,11 @@ publish = false
 
 [dependencies]
 bevy = { workspace = true }
-saddle-pane = { workspace = true }
+saddle-pane = { git = "https://github.com/julien-blanchon/saddle-pane" }
 saddle-procgen-mesh-ops = { workspace = true }
+bevy_flair = { workspace = true }
+bevy_input_focus = { workspace = true }
+bevy_ui_widgets = { workspace = true }
 
 [lints]
 workspace = true

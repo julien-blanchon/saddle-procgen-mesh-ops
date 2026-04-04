@@ -1,7 +1,8 @@
 use bevy::prelude::*;
 
 use crate::{
-    EdgeId, FaceId, HalfEdgeMesh, MeshBooleanConfig, MeshBooleanOperation, MeshError, VertexId,
+    EdgeId, FaceId, HalfEdgeMesh, MeshBooleanConfig, MeshBooleanOperation, MeshBridgeConfig,
+    MeshError, MeshUvProjection, VertexColorPaintConfig, VertexId,
 };
 
 #[derive(Debug, Clone, Reflect)]
@@ -56,6 +57,18 @@ pub enum MeshEditCommand {
     OffsetVertices {
         vertices: Vec<VertexId>,
         offset: Vec3,
+    },
+    PaintVertices {
+        vertices: Vec<VertexId>,
+        config: VertexColorPaintConfig,
+    },
+    ProjectUvs {
+        projection: MeshUvProjection,
+    },
+    BridgeBoundaryLoops {
+        first_loop: usize,
+        second_loop: usize,
+        config: MeshBridgeConfig,
     },
     RecomputeNormals,
     RecomputeTangents,

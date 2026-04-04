@@ -113,7 +113,13 @@ fn main() {
             }),
             ..default()
         }))
-        .add_plugins(PanePlugin)
+        .add_plugins((
+            bevy_flair::FlairPlugin,
+            bevy_input_focus::InputDispatchPlugin,
+            bevy_ui_widgets::UiWidgetsPlugins,
+            bevy_input_focus::tab_navigation::TabNavigationPlugin,
+            PanePlugin,
+        ))
         .register_pane::<FortressBreachPane>()
         .add_systems(Startup, (setup_scene, build_initial_showcase).chain())
         .add_systems(

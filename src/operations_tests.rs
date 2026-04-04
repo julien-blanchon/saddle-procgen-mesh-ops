@@ -38,6 +38,50 @@ fn edge_between(mesh: &HalfEdgeMesh, a: usize, b: usize) -> EdgeId {
         .expect("edge between vertices")
 }
 
+fn separated_quads() -> HalfEdgeMesh {
+    HalfEdgeMesh::from_polygon_faces(
+        vec![
+            VertexPayload {
+                position: Vec3::new(-1.0, -1.0, 0.0),
+                ..default()
+            },
+            VertexPayload {
+                position: Vec3::new(1.0, -1.0, 0.0),
+                ..default()
+            },
+            VertexPayload {
+                position: Vec3::new(1.0, 1.0, 0.0),
+                ..default()
+            },
+            VertexPayload {
+                position: Vec3::new(-1.0, 1.0, 0.0),
+                ..default()
+            },
+            VertexPayload {
+                position: Vec3::new(-1.0, -1.0, 1.0),
+                ..default()
+            },
+            VertexPayload {
+                position: Vec3::new(1.0, -1.0, 1.0),
+                ..default()
+            },
+            VertexPayload {
+                position: Vec3::new(1.0, 1.0, 1.0),
+                ..default()
+            },
+            VertexPayload {
+                position: Vec3::new(-1.0, 1.0, 1.0),
+                ..default()
+            },
+        ],
+        vec![
+            PolygonFace::new(vec![0, 1, 2, 3]),
+            PolygonFace::new(vec![7, 6, 5, 4]),
+        ],
+    )
+    .expect("separated quads")
+}
+
 #[test]
 fn flip_edge_changes_the_diagonal() {
     let mut mesh = diamond_strip();
@@ -289,6 +333,57 @@ fn recompute_tangents_populates_loop_tangents() {
                     .is_some()
             })
     }));
+}
+
+#[test]
+fn planar_projection_assigns_loop_uvs() {
+    let mut mesh = HalfEdgeMesh::unit_quad().expect("quad");
+    mesh.project_uvs(&MeshUvProjection {
+        mode: MeshUvProjectionMode::PlanarXY,
+        scale: Vec2::new(0.5, 0.25),
+        offset: Vec2::new(1.0, -0.5),
+    })
+    .expect("project uvs");
+
+    let face = mesh.face_ids().next().expect("face");
+    let uvs = mesh
+        .face_loop_attributes(face)
+        .expect("loop attributes")
+        .into_iter()
+        .map(|attributes| attributes.uv.expect("uv"))
+        .collect::<Vec<_>>();
+    assert!(uvs.contains(&Vec2::new(0.75, -0.625)));
+    assert!(uvs.contains(&Vec2::new(1.25, -0.375)));
+}
+
+#[test]
+fn vertex_painting_blends_existing_color() {
+    let mut mesh = HalfEdgeMesh::unit_quad().expect("quad");
+    mesh.vertex_payload_mut(VertexId(0)).expect("vertex").color = Some(Vec4::new(0.2, 0.2, 0.2, 1.0));
+    mesh.paint_vertices(
+        &[VertexId(0)],
+        &VertexColorPaintConfig {
+            color: Vec4::new(1.0, 0.4, 0.1, 1.0),
+            blend: 0.5,
+        },
+    )
+    .expect("paint");
+
+    let painted = mesh.vertex_payload(VertexId(0)).expect("vertex");
+    assert_eq!(painted.color, Some(Vec4::new(0.6, 0.3, 0.15, 1.0)));
+}
+
+#[test]
+fn bridging_two_boundary_loops_creates_side_faces() {
+    let mut mesh = separated_quads();
+    assert_eq!(mesh.boundary_loops().len(), 2);
+
+    mesh.bridge_boundary_loops(0, 1, &MeshBridgeConfig::default())
+        .expect("bridge loops");
+
+    assert_eq!(mesh.face_count(), 6);
+    assert!(mesh.is_closed());
+    assert!(mesh.validate().is_ok());
 }
 
 proptest! {

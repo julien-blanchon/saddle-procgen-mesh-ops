@@ -3,6 +3,7 @@ use bevy::prelude::*;
 #[derive(Debug, Clone, PartialEq, Reflect)]
 pub struct VertexPayload {
     pub position: Vec3,
+    pub color: Option<Vec4>,
     pub weight: Option<f32>,
     pub tag: Option<u32>,
 }
@@ -11,6 +12,7 @@ impl Default for VertexPayload {
     fn default() -> Self {
         Self {
             position: Vec3::ZERO,
+            color: None,
             weight: None,
             tag: None,
         }
@@ -21,6 +23,11 @@ impl VertexPayload {
     pub fn lerp(&self, other: &Self, factor: f32) -> Self {
         Self {
             position: self.position.lerp(other.position, factor),
+            color: match (self.color, other.color) {
+                (Some(left), Some(right)) => Some(left.lerp(right, factor)),
+                (Some(value), None) | (None, Some(value)) => Some(value),
+                (None, None) => None,
+            },
             weight: match (self.weight, other.weight) {
                 (Some(left), Some(right)) => Some(left + (right - left) * factor),
                 (Some(value), None) | (None, Some(value)) => Some(value),
@@ -39,6 +46,10 @@ impl VertexPayload {
             .iter()
             .fold(Vec3::ZERO, |acc, value| acc + value.position)
             / values.len() as f32;
+        let color_values = values
+            .iter()
+            .filter_map(|value| value.color)
+            .collect::<Vec<_>>();
 
         let (weight_sum, weight_count) =
             values.iter().fold((0.0, 0usize), |(sum, count), value| {
@@ -57,6 +68,13 @@ impl VertexPayload {
 
         Self {
             position,
+            color: (!color_values.is_empty()).then_some(
+                color_values
+                    .iter()
+                    .copied()
+                    .fold(Vec4::ZERO, |acc, value| acc + value)
+                    / color_values.len() as f32,
+            ),
             weight: (weight_count > 0).then_some(weight_sum / weight_count as f32),
             tag,
         }

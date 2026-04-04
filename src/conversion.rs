@@ -60,6 +60,16 @@ impl HalfEdgeMesh {
             None => None,
         };
 
+        let colors = match mesh.attribute(Mesh::ATTRIBUTE_COLOR) {
+            Some(VertexAttributeValues::Float32x4(values)) => Some(values.as_slice()),
+            Some(other) => {
+                return Err(MeshError::UnsupportedMesh(format!(
+                    "color attribute has unsupported format {other:?}"
+                )));
+            }
+            None => None,
+        };
+
         let indices: Vec<usize> = match mesh.indices() {
             Some(Indices::U16(values)) => values.iter().map(|value| *value as usize).collect(),
             Some(Indices::U32(values)) => values.iter().map(|value| *value as usize).collect(),
@@ -98,6 +108,9 @@ impl HalfEdgeMesh {
                 let vertex_index = *welded_vertices.entry(key).or_insert_with(|| {
                     snapshot.vertices.push(crate::VertexPayload {
                         position: position_vec,
+                        color: colors.and_then(|values| {
+                            values.get(corner_index).copied().map(Vec4::from)
+                        }),
                         ..default()
                     });
                     snapshot.vertices.len() - 1
@@ -134,11 +147,15 @@ impl HalfEdgeMesh {
 
         let has_uvs = export_mesh.has_loop_uvs();
         let has_tangents = export_mesh.has_loop_tangents();
+        let has_colors = export_mesh
+            .vertex_ids()
+            .any(|vertex| export_mesh.vertex_payload(vertex).ok().and_then(|payload| payload.color).is_some());
 
         let mut positions = Vec::<[f32; 3]>::new();
         let mut normals = Vec::<[f32; 3]>::new();
         let mut uvs = Vec::<[f32; 2]>::new();
         let mut tangents = Vec::<[f32; 4]>::new();
+        let mut colors = Vec::<[f32; 4]>::new();
         let mut indices = Vec::<u32>::new();
 
         for face in export_mesh.face_ids() {
@@ -154,6 +171,9 @@ impl HalfEdgeMesh {
                 let loop_data = export_mesh.halfedge_loop_attributes(*halfedge)?;
                 positions.push(payload.position.to_array());
                 normals.push(loop_data.normal.unwrap_or(Vec3::Z).to_array());
+                if has_colors {
+                    colors.push(payload.color.unwrap_or(Vec4::ONE).to_array());
+                }
                 if has_uvs {
                     uvs.push(loop_data.uv.unwrap_or(Vec2::ZERO).to_array());
                 }
@@ -177,6 +197,9 @@ impl HalfEdgeMesh {
         );
         mesh.insert_attribute(Mesh::ATTRIBUTE_POSITION, positions);
         mesh.insert_attribute(Mesh::ATTRIBUTE_NORMAL, normals);
+        if has_colors {
+            mesh.insert_attribute(Mesh::ATTRIBUTE_COLOR, colors);
+        }
         if has_uvs {
             mesh.insert_attribute(Mesh::ATTRIBUTE_UV_0, uvs);
         }

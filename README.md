@@ -83,6 +83,7 @@ fn request_edit(
 - `MeshOpsRequest`, `MeshTopologyChanged`, `MeshOpsFailed`: message surface for runtime editing
 - `MeshOpsConfig`, `MeshOpsDebugSettings`: runtime policy resources for sync, normals/tangents, async thresholds, and gizmo appearance
 - `MeshBooleanConfig`, `MeshBooleanOperation`: voxel-boolean CSG controls for union, intersection, and difference on closed meshes
+- `MeshBridgeConfig`, `MeshUvProjection`, `MeshUvProjectionMode`, `VertexColorPaintConfig`: higher-level modeling controls for loop bridging, UV layout, and vertex painting
 - `MeshDecimationConfig`, `MeshLodConfig`, `MeshLodLevel`: pure-core simplification controls for runtime-generated LODs
 - `MeshSnapshot`, `PolygonFace`: polygon snapshot surface for tests, offline tools, and deterministic rebuilds
 
@@ -103,6 +104,7 @@ Higher-level operations:
 - `extrude_faces`
 - `bevel_edges`
 - `split_edge_ring`
+- `bridge_boundary_loops`
 - `subdivide_catmull_clark`
 - `subdivide_loop`
 - `merge_vertices`
@@ -112,6 +114,8 @@ Higher-level operations:
 - `decimate`
 - `build_lod_chain`
 - `offset_vertices`
+- `paint_vertices`
+- `project_uvs`
 - `recompute_normals`
 - `recompute_tangents`
 - `triangulate_faces`
@@ -130,6 +134,7 @@ Pass 1 intentionally keeps some operations narrow:
 - Import welds topology by exact position equality so loop attributes can preserve UV seams and split normals. Coincident-but-disconnected surfaces are not distinguished in pass 1.
 - Export preserves polygonal internal topology and triangulates deterministically for Bevy output.
 - Loop attributes are stored per half-edge corner, so UV seams and hard normals can survive round-trips when the source mesh fits the supported subset.
+- Vertex payload colors round-trip through `Mesh::ATTRIBUTE_COLOR` when present.
 
 ## Runtime vs Offline Usage
 

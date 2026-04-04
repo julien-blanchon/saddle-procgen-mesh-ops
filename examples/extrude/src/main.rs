@@ -61,7 +61,13 @@ fn main() {
             }),
             ..default()
         }))
-        .add_plugins(PanePlugin)
+        .add_plugins((
+            bevy_flair::FlairPlugin,
+            bevy_input_focus::InputDispatchPlugin,
+            bevy_ui_widgets::UiWidgetsPlugins,
+            bevy_input_focus::tab_navigation::TabNavigationPlugin,
+            PanePlugin,
+        ))
         .register_pane::<ExtrudePane>()
         .add_systems(Startup, setup)
         .add_systems(Update, (sync_pane_to_config, rebuild_showcase, update_overlay).chain())

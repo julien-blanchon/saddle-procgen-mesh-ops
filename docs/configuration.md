@@ -46,6 +46,42 @@ Voxelized boolean controls for `HalfEdgeMesh::boolean_with` and `HalfEdgeMesh::a
 
 Smaller `voxel_size` values preserve more detail but cost more CPU and memory.
 
+## `MeshBridgeConfig`
+
+Controls `HalfEdgeMesh::bridge_boundary_loops` and `MeshEditCommand::BridgeBoundaryLoops`.
+
+| Field | Type | Default | Effect |
+| --- | --- | --- | --- |
+| `twist_offset` | `usize` | `0` | Rotates how the second loop is paired against the first before the bridge quads are authored |
+
+Pass 1 expects two boundary loops with matching corner counts.
+
+## `MeshUvProjection`
+
+Controls `HalfEdgeMesh::project_uvs` and `MeshEditCommand::ProjectUvs`.
+
+| Field | Type | Default | Effect |
+| --- | --- | --- | --- |
+| `mode` | `MeshUvProjectionMode` | `PlanarXY` | Chooses XY, XZ, YZ, or dominant-axis box projection |
+| `scale` | `Vec2` | `1,1` | Multiplies the projected coordinates before they are written as UVs |
+| `offset` | `Vec2` | `0,0` | Adds a constant UV offset after projection |
+
+### `MeshUvProjectionMode`
+
+- `PlanarXY`
+- `PlanarXZ`
+- `PlanarYZ`
+- `Box`
+
+## `VertexColorPaintConfig`
+
+Controls `HalfEdgeMesh::paint_vertices` and `MeshEditCommand::PaintVertices`.
+
+| Field | Type | Default | Effect |
+| --- | --- | --- | --- |
+| `color` | `Vec4` | `1,1,1,1` | Target RGBA color stored on each selected vertex payload |
+| `blend` | `f32` | `1.0` | Lerp factor applied between the current color and the new target color |
+
 ## `MeshDecimationConfig`
 
 Pure-core simplification settings for `HalfEdgeMesh::decimate`.

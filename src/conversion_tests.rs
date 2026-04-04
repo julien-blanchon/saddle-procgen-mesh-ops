@@ -56,6 +56,29 @@ fn uv_attributes_survive_roundtrip() {
 }
 
 #[test]
+fn vertex_colors_survive_roundtrip() {
+    let mut mesh = HalfEdgeMesh::unit_quad().expect("quad");
+    for vertex in mesh.vertex_ids().collect::<Vec<_>>() {
+        mesh.vertex_payload_mut(vertex)
+            .expect("vertex")
+            .color = Some(Vec4::new(vertex.index() as f32 / 4.0, 0.2, 0.8, 1.0));
+    }
+    mesh.triangulate_faces().expect("triangulate");
+    mesh.recompute_normals().expect("normals");
+
+    let exported = mesh.to_bevy_mesh().expect("export");
+    let imported = HalfEdgeMesh::from_bevy_mesh(&exported).expect("import");
+
+    assert!(imported.vertex_ids().all(|vertex| {
+        imported
+            .vertex_payload(vertex)
+            .expect("vertex")
+            .color
+            .is_some()
+    }));
+}
+
+#[test]
 fn hard_normals_survive_position_weld_roundtrip() {
     let mut mesh = Mesh::new(
         PrimitiveTopology::TriangleList,

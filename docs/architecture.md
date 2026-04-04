@@ -29,6 +29,7 @@
   - `edge`
   - per-loop attributes (`uv`, `normal`, `tangent`)
 - Each vertex stores one outgoing half-edge plus the per-vertex payload (`position`, optional weight/tag).
+- Each vertex stores one outgoing half-edge plus the per-vertex payload (`position`, optional color, optional weight/tag).
 - Each face stores one representative half-edge, `FaceKind`, and optional material/region metadata.
 
 ## Boundary Representation
@@ -60,6 +61,7 @@ Manifold checks:
 
 - Vertex payloads:
   - position
+  - optional color
   - optional scalar weight
   - optional tag
 - Loop payloads:
@@ -75,7 +77,9 @@ Loop attributes are first-class because UV seams, hard normals, and tangents are
 ## Edit Pipeline
 
 - Small, local operations either mutate payloads directly or edit a `MeshSnapshot`.
+- UV projection and vertex painting stay in the lightweight payload-edit path because they do not change topology.
 - Snapshot edits rebuild the half-edge topology with `HalfEdgeMesh::from_snapshot(...)`.
+- Boundary-loop bridging also routes through snapshots so it can author a strip of quads and then immediately revalidate the stitched surface.
 - Boolean CSG samples closed operands into a bounded voxel grid, reconstructs exposed quads, and then rebuilds through the same validated snapshot path.
 - Rebuilds re-run validation immediately, so broken edits fail fast.
 
@@ -104,6 +108,7 @@ Export:
 - recomputes normals/tangents on demand when the source lacks them
 - triangulates deterministically with a fan per polygon face
 - emits one Bevy vertex per face corner so seams survive export
+- duplicates per-vertex payload colors across those emitted face corners when `Mesh::ATTRIBUTE_COLOR` is present
 
 ## ECS Runtime Flow
 
@@ -116,7 +121,7 @@ Export:
 
 ## Async Job Flow
 
-- Async work is used only for selected heavy operations, currently subdivision.
+- Async work is used only for selected heavy operations, currently subdivision and larger boolean requests.
 - Boolean requests can also move off-thread when their configured face threshold is exceeded.
 - Each job stores the mesh revision it was spawned from.
 - On completion:

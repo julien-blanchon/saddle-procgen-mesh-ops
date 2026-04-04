@@ -85,7 +85,13 @@ fn main() {
             }),
             ..default()
         }))
-        .add_plugins(PanePlugin)
+        .add_plugins((
+            bevy_flair::FlairPlugin,
+            bevy_input_focus::InputDispatchPlugin,
+            bevy_ui_widgets::UiWidgetsPlugins,
+            bevy_input_focus::tab_navigation::TabNavigationPlugin,
+            PanePlugin,
+        ))
         .register_pane::<RuntimePane>()
         .add_plugins(MeshOpsPlugin::default())
         .add_systems(Startup, setup)

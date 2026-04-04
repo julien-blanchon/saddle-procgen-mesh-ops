@@ -21,6 +21,52 @@ struct LoopAttributeKey {
     tangent: Option<[u32; 4]>,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Reflect, Default)]
+pub enum MeshUvProjectionMode {
+    #[default]
+    PlanarXY,
+    PlanarXZ,
+    PlanarYZ,
+    Box,
+}
+
+#[derive(Debug, Clone, PartialEq, Reflect)]
+pub struct MeshUvProjection {
+    pub mode: MeshUvProjectionMode,
+    pub scale: Vec2,
+    pub offset: Vec2,
+}
+
+impl Default for MeshUvProjection {
+    fn default() -> Self {
+        Self {
+            mode: MeshUvProjectionMode::PlanarXY,
+            scale: Vec2::ONE,
+            offset: Vec2::ZERO,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Reflect)]
+pub struct VertexColorPaintConfig {
+    pub color: Vec4,
+    pub blend: f32,
+}
+
+impl Default for VertexColorPaintConfig {
+    fn default() -> Self {
+        Self {
+            color: Vec4::ONE,
+            blend: 1.0,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Reflect, Default)]
+pub struct MeshBridgeConfig {
+    pub twist_offset: usize,
+}
+
 impl HalfEdgeMesh {
     pub fn add_face(&mut self, vertices: &[VertexId]) -> Result<FaceId, MeshError> {
         let mut snapshot = self.to_snapshot();
@@ -741,6 +787,121 @@ impl HalfEdgeMesh {
         Ok(())
     }
 
+    pub fn paint_vertices(
+        &mut self,
+        vertices: &[VertexId],
+        config: &VertexColorPaintConfig,
+    ) -> Result<(), MeshError> {
+        if vertices.is_empty() {
+            return Err(MeshError::EmptySelection("paint_vertices"));
+        }
+
+        let blend = config.blend.clamp(0.0, 1.0);
+        for &vertex in vertices {
+            let payload = self.vertex_payload_mut(vertex)?;
+            payload.color = Some(
+                payload
+                    .color
+                    .unwrap_or(config.color)
+                    .lerp(config.color, blend),
+            );
+        }
+        Ok(())
+    }
+
+    pub fn project_uvs(&mut self, projection: &MeshUvProjection) -> Result<(), MeshError> {
+        let scale = Vec2::new(
+            projection.scale.x.max(f32::EPSILON),
+            projection.scale.y.max(f32::EPSILON),
+        );
+        for face in self.face_ids().collect::<Vec<_>>() {
+            let face_mode = match projection.mode {
+                MeshUvProjectionMode::Box => dominant_projection(self.face_normal(face)?),
+                mode => mode,
+            };
+            let halfedges = self.face_halfedges(face)?.collect::<Vec<_>>();
+            for halfedge in halfedges {
+                let vertex = self.halfedge_origin(halfedge)?;
+                let position = self.vertex_payload(vertex)?.position;
+                self.halfedge_loop_attributes_mut(halfedge)?.uv = Some(project_position_to_uv(
+                    position,
+                    face_mode,
+                    scale,
+                    projection.offset,
+                ));
+            }
+        }
+        Ok(())
+    }
+
+    pub fn bridge_boundary_loops(
+        &mut self,
+        first_loop: usize,
+        second_loop: usize,
+        config: &MeshBridgeConfig,
+    ) -> Result<(), MeshError> {
+        let boundary_loops = self.boundary_loops();
+        let Some(first) = boundary_loops.get(first_loop) else {
+            return Err(MeshError::UnsupportedOperation {
+                operation: "bridge_boundary_loops",
+                detail: format!("boundary loop index {first_loop} is out of range"),
+            });
+        };
+        let Some(second) = boundary_loops.get(second_loop) else {
+            return Err(MeshError::UnsupportedOperation {
+                operation: "bridge_boundary_loops",
+                detail: format!("boundary loop index {second_loop} is out of range"),
+            });
+        };
+
+        if first_loop == second_loop {
+            return Err(MeshError::UnsupportedOperation {
+                operation: "bridge_boundary_loops",
+                detail: "bridge targets must refer to two distinct boundary loops".to_string(),
+            });
+        }
+        if first.len() < 3 || second.len() < 3 || first.len() != second.len() {
+            return Err(MeshError::UnsupportedOperation {
+                operation: "bridge_boundary_loops",
+                detail: "bridge pass 1 requires two boundary loops with matching corner counts"
+                    .to_string(),
+            });
+        }
+
+        let first_vertices = first
+            .iter()
+            .map(|halfedge| self.halfedge_origin(*halfedge).map(|vertex| vertex.index()))
+            .collect::<Result<Vec<_>, _>>()?;
+        let mut second_vertices = second
+            .iter()
+            .map(|halfedge| self.halfedge_origin(*halfedge).map(|vertex| vertex.index()))
+            .collect::<Result<Vec<_>, _>>()?;
+        second_vertices.reverse();
+
+        let snapshot = self.to_snapshot();
+        let twist = config.twist_offset % first_vertices.len();
+        let mut output = snapshot.clone();
+
+        for index in 0..first_vertices.len() {
+            let next = (index + 1) % first_vertices.len();
+            let b_index = (index + twist) % second_vertices.len();
+            let b_next = (next + twist) % second_vertices.len();
+            output.faces.push(PolygonFace {
+                vertices: vec![
+                    first_vertices[index],
+                    first_vertices[next],
+                    second_vertices[b_next],
+                    second_vertices[b_index],
+                ],
+                loops: vec![LoopAttributes::default(); 4],
+                data: FacePayload::default(),
+            });
+        }
+
+        *self = HalfEdgeMesh::from_snapshot(output)?;
+        Ok(())
+    }
+
     pub fn recompute_normals(&mut self) -> Result<(), MeshError> {
         let normals = self
             .vertex_ids()
@@ -1133,6 +1294,32 @@ fn move_towards(from: Vec3, to: Vec3, width: f32) -> Vec3 {
     }
     let factor = (width / length).clamp(0.08, 0.42);
     from + direction * factor
+}
+
+fn dominant_projection(normal: Vec3) -> MeshUvProjectionMode {
+    let abs = normal.abs();
+    if abs.z >= abs.x && abs.z >= abs.y {
+        MeshUvProjectionMode::PlanarXY
+    } else if abs.y >= abs.x {
+        MeshUvProjectionMode::PlanarXZ
+    } else {
+        MeshUvProjectionMode::PlanarYZ
+    }
+}
+
+fn project_position_to_uv(
+    position: Vec3,
+    mode: MeshUvProjectionMode,
+    scale: Vec2,
+    offset: Vec2,
+) -> Vec2 {
+    let projected = match mode {
+        MeshUvProjectionMode::PlanarXY => Vec2::new(position.x, position.y),
+        MeshUvProjectionMode::PlanarXZ => Vec2::new(position.x, position.z),
+        MeshUvProjectionMode::PlanarYZ => Vec2::new(position.y, position.z),
+        MeshUvProjectionMode::Box => Vec2::new(position.x, position.y),
+    };
+    projected * scale + offset
 }
 
 fn build_vertex_corner_signatures(snapshot: &MeshSnapshot) -> Vec<Vec<LoopAttributeKey>> {

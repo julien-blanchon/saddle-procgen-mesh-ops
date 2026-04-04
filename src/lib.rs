@@ -23,6 +23,7 @@ pub use error::MeshError;
 pub use ids::{EdgeId, FaceId, HalfEdgeId, VertexId};
 pub use mesh::{FaceKind, HalfEdgeMesh};
 pub use messages::{MeshEditCommand, MeshOpsFailed, MeshOpsRequest, MeshTopologyChanged};
+pub use operations::{MeshBridgeConfig, MeshUvProjection, MeshUvProjectionMode, VertexColorPaintConfig};
 pub use resources::MeshOpsConfig;
 pub use simplify::{MeshDecimationConfig, MeshLodConfig, MeshLodLevel};
 pub use topology::{MeshSnapshot, PolygonFace};
@@ -119,6 +120,7 @@ impl Plugin for MeshOpsPlugin {
             .register_type::<LoopAttributes>()
             .register_type::<MeshBooleanConfig>()
             .register_type::<MeshBooleanOperation>()
+            .register_type::<MeshBridgeConfig>()
             .register_type::<MeshEditCommand>()
             .register_type::<MeshOpsConfig>()
             .register_type::<MeshOpsDebugSettings>()
@@ -127,7 +129,10 @@ impl Plugin for MeshOpsPlugin {
             .register_type::<MeshOpsRequest>()
             .register_type::<MeshOpsTarget>()
             .register_type::<MeshTopologyChanged>()
+            .register_type::<MeshUvProjection>()
+            .register_type::<MeshUvProjectionMode>()
             .register_type::<VertexId>()
+            .register_type::<VertexColorPaintConfig>()
             .register_type::<VertexPayload>()
             .add_systems(self.activate_schedule, systems::activate_runtime)
             .add_systems(self.deactivate_schedule, systems::deactivate_runtime)

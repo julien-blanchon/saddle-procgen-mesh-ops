@@ -2,8 +2,9 @@ use bevy::{ecs::message::Messages, prelude::*};
 
 use super::*;
 use crate::{
-    EditableMesh, MeshBooleanConfig, MeshBooleanOperation, MeshOpsPlugin, MeshOpsRequest,
-    MeshOpsTarget, VertexId,
+    EditableMesh, MeshBooleanConfig, MeshBooleanOperation, MeshBridgeConfig, MeshOpsPlugin,
+    MeshOpsRequest, MeshOpsTarget, MeshUvProjection, MeshUvProjectionMode,
+    PolygonFace, VertexColorPaintConfig, VertexId, VertexPayload,
 };
 
 fn setup_app() -> (App, Entity) {
@@ -189,4 +190,117 @@ fn boolean_requests_rebuild_the_target_mesh() {
         .expect("editable after boolean");
     assert!(editable.mesh.is_closed());
     assert!(editable.mesh.face_count() > 6);
+}
+
+#[test]
+fn non_topology_commands_update_payload_and_loop_attributes() {
+    let (mut app, entity) = setup_app();
+    app.update();
+
+    app.world_mut().write_message(MeshOpsRequest {
+        entity,
+        command: MeshEditCommand::ProjectUvs {
+            projection: MeshUvProjection {
+                mode: MeshUvProjectionMode::PlanarXZ,
+                scale: Vec2::ONE,
+                offset: Vec2::ZERO,
+            },
+        },
+        prefer_async: false,
+    });
+    app.world_mut().write_message(MeshOpsRequest {
+        entity,
+        command: MeshEditCommand::PaintVertices {
+            vertices: vec![VertexId(0)],
+            config: VertexColorPaintConfig {
+                color: Vec4::new(0.9, 0.2, 0.1, 1.0),
+                blend: 1.0,
+            },
+        },
+        prefer_async: false,
+    });
+    app.update();
+
+    let editable = app
+        .world()
+        .get::<EditableMesh>(entity)
+        .expect("editable after payload update");
+    assert_eq!(
+        editable.mesh.vertex_payload(VertexId(0)).expect("vertex").color,
+        Some(Vec4::new(0.9, 0.2, 0.1, 1.0))
+    );
+    assert!(editable.mesh.has_loop_uvs());
+}
+
+#[test]
+fn bridge_loop_requests_close_open_meshes() {
+    let mut app = App::new();
+    app.add_plugins(MinimalPlugins);
+    app.insert_resource(Assets::<Mesh>::default());
+    app.add_plugins(MeshOpsPlugin::default());
+
+    let entity = spawn_target(
+        &mut app,
+        "Open Columns",
+        HalfEdgeMesh::from_polygon_faces(
+            vec![
+                VertexPayload {
+                    position: Vec3::new(-1.0, -1.0, 0.0),
+                    ..default()
+                },
+                VertexPayload {
+                    position: Vec3::new(1.0, -1.0, 0.0),
+                    ..default()
+                },
+                VertexPayload {
+                    position: Vec3::new(1.0, 1.0, 0.0),
+                    ..default()
+                },
+                VertexPayload {
+                    position: Vec3::new(-1.0, 1.0, 0.0),
+                    ..default()
+                },
+                VertexPayload {
+                    position: Vec3::new(-1.0, -1.0, 1.0),
+                    ..default()
+                },
+                VertexPayload {
+                    position: Vec3::new(1.0, -1.0, 1.0),
+                    ..default()
+                },
+                VertexPayload {
+                    position: Vec3::new(1.0, 1.0, 1.0),
+                    ..default()
+                },
+                VertexPayload {
+                    position: Vec3::new(-1.0, 1.0, 1.0),
+                    ..default()
+                },
+            ],
+            vec![
+                PolygonFace::new(vec![0, 1, 2, 3]),
+                PolygonFace::new(vec![7, 6, 5, 4]),
+            ],
+        )
+        .expect("open mesh"),
+    );
+    app.update();
+
+    app.world_mut().write_message(MeshOpsRequest {
+        entity,
+        command: MeshEditCommand::BridgeBoundaryLoops {
+            first_loop: 0,
+            second_loop: 1,
+            config: MeshBridgeConfig::default(),
+        },
+        prefer_async: false,
+    });
+    app.update();
+
+    let editable = app
+        .world()
+        .get::<EditableMesh>(entity)
+        .expect("editable after bridge");
+    assert!(editable.mesh.is_closed());
+    assert_eq!(editable.mesh.face_count(), 6);
 }

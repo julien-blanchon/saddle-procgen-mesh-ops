@@ -8,6 +8,7 @@ use bevy::remote::RemotePlugin;
 use bevy::remote::http::RemoteHttpPlugin;
 #[cfg(feature = "dev")]
 use bevy_brp_extras::BrpExtrasPlugin;
+use saddle_pane::prelude::*;
 use saddle_procgen_mesh_ops::{
     EditableMesh, FaceId, HalfEdgeMesh, MeshEditCommand, MeshOpsDebugView, MeshOpsFailed,
     MeshOpsPlugin, MeshOpsRequest, MeshOpsSystems, MeshOpsTarget, MeshTopologyChanged, VertexId,
@@ -40,6 +41,66 @@ pub struct LabControl {
     pub pending_bevel: bool,
     pub pending_subdivide: bool,
     pub pending_crater_steps: u32,
+    pub extrude_request_count: u32,
+    pub bevel_request_count: u32,
+    pub subdivide_request_count: u32,
+    pub crater_request_count: u32,
+}
+
+#[derive(Resource, Debug, Clone, PartialEq, Reflect)]
+#[reflect(Resource)]
+pub struct LabConfig {
+    pub extrude_distance: f32,
+    pub bevel_width: f32,
+    pub subdivision_levels: u32,
+    pub crater_depth: f32,
+}
+
+impl Default for LabConfig {
+    fn default() -> Self {
+        Self {
+            extrude_distance: 0.35,
+            bevel_width: 0.18,
+            subdivision_levels: 1,
+            crater_depth: 0.08,
+        }
+    }
+}
+
+#[derive(Resource, Debug, Clone, Pane)]
+#[pane(title = "Mesh Ops Lab", position = "top-right")]
+pub struct LabPane {
+    #[pane(slider, min = 0.15, max = 0.75, step = 0.02)]
+    pub extrude_distance: f32,
+    #[pane(slider, min = 0.08, max = 0.32, step = 0.01)]
+    pub bevel_width: f32,
+    #[pane(slider, min = 1.0, max = 2.0, step = 1.0)]
+    pub subdivision_levels: u32,
+    #[pane(slider, min = 0.03, max = 0.18, step = 0.01)]
+    pub crater_depth: f32,
+    #[pane(number, min = 0.0, step = 1.0)]
+    pub extrude_requests: u32,
+    #[pane(number, min = 0.0, step = 1.0)]
+    pub bevel_requests: u32,
+    #[pane(number, min = 0.0, step = 1.0)]
+    pub subdivide_requests: u32,
+    #[pane(number, min = 0.0, step = 1.0)]
+    pub crater_requests: u32,
+}
+
+impl Default for LabPane {
+    fn default() -> Self {
+        Self {
+            extrude_distance: 0.35,
+            bevel_width: 0.18,
+            subdivision_levels: 1,
+            crater_depth: 0.08,
+            extrude_requests: 0,
+            bevel_requests: 0,
+            subdivide_requests: 0,
+            crater_requests: 0,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Default, Reflect)]
@@ -76,14 +137,26 @@ fn main() {
     app.insert_resource(ClearColor(Color::srgb(0.05, 0.06, 0.08)));
     app.add_plugins(MeshOpsPlugin::default());
     app.init_resource::<LabControl>();
+    app.init_resource::<LabConfig>();
+    app.init_resource::<LabPane>();
     app.init_resource::<LabDiagnostics>();
     app.register_type::<LabControl>();
+    app.register_type::<LabConfig>();
     app.register_type::<DemoStats>();
     app.register_type::<LabDiagnostics>();
+    app.add_plugins((
+        bevy_flair::FlairPlugin,
+        bevy_input_focus::InputDispatchPlugin,
+        bevy_ui_widgets::UiWidgetsPlugins,
+        bevy_input_focus::tab_navigation::TabNavigationPlugin,
+        PanePlugin,
+    ));
+    app.register_pane::<LabPane>();
     app.add_systems(Startup, setup);
     app.add_systems(
         Update,
         (
+            sync_pane_to_resources,
             handle_keyboard_input,
             emit_lab_requests.before(MeshOpsSystems::ProcessRequests),
             collect_runtime_messages.after(MeshOpsSystems::SyncMeshes),
@@ -209,20 +282,60 @@ fn spawn_demo<M: Component>(
 fn handle_keyboard_input(keys: Res<ButtonInput<KeyCode>>, mut control: ResMut<LabControl>) {
     if keys.just_pressed(KeyCode::KeyE) {
         control.pending_extrude = true;
+        control.extrude_request_count = control.extrude_request_count.saturating_add(1);
     }
     if keys.just_pressed(KeyCode::KeyB) {
         control.pending_bevel = true;
+        control.bevel_request_count = control.bevel_request_count.saturating_add(1);
     }
     if keys.just_pressed(KeyCode::KeyS) {
         control.pending_subdivide = true;
+        control.subdivide_request_count = control.subdivide_request_count.saturating_add(1);
     }
     if keys.just_pressed(KeyCode::KeyC) {
         control.pending_crater_steps = control.pending_crater_steps.saturating_add(1);
+        control.crater_request_count = control.crater_request_count.saturating_add(1);
+    }
+}
+
+fn sync_pane_to_resources(
+    pane: Res<LabPane>,
+    mut control: ResMut<LabControl>,
+    mut config: ResMut<LabConfig>,
+) {
+    if !pane.is_changed() {
+        return;
+    }
+
+    *config = LabConfig {
+        extrude_distance: pane.extrude_distance.clamp(0.1, 0.9),
+        bevel_width: pane.bevel_width.clamp(0.05, 0.4),
+        subdivision_levels: pane.subdivision_levels.clamp(1, 2),
+        crater_depth: pane.crater_depth.clamp(0.02, 0.2),
+    };
+
+    if pane.extrude_requests > control.extrude_request_count {
+        control.pending_extrude = true;
+        control.extrude_request_count = pane.extrude_requests;
+    }
+    if pane.bevel_requests > control.bevel_request_count {
+        control.pending_bevel = true;
+        control.bevel_request_count = pane.bevel_requests;
+    }
+    if pane.subdivide_requests > control.subdivide_request_count {
+        control.pending_subdivide = true;
+        control.subdivide_request_count = pane.subdivide_requests;
+    }
+    if pane.crater_requests > control.crater_request_count {
+        let delta = pane.crater_requests - control.crater_request_count;
+        control.pending_crater_steps = control.pending_crater_steps.saturating_add(delta);
+        control.crater_request_count = pane.crater_requests;
     }
 }
 
 fn emit_lab_requests(
     mut control: ResMut<LabControl>,
+    config: Res<LabConfig>,
     entities: Res<LabEntities>,
     meshes: Query<&EditableMesh>,
     mut requests: MessageWriter<MeshOpsRequest>,
@@ -233,7 +346,7 @@ fn emit_lab_requests(
             entity: entities.extrude,
             command: MeshEditCommand::ExtrudeFaces {
                 faces: vec![FaceId(0)],
-                distance: 0.35,
+                distance: config.extrude_distance,
             },
             prefer_async: false,
         });
@@ -247,7 +360,7 @@ fn emit_lab_requests(
                     entity: entities.bevel,
                     command: MeshEditCommand::BevelEdges {
                         edges: vec![edge],
-                        width: 0.18,
+                        width: config.bevel_width,
                     },
                     prefer_async: false,
                 });
@@ -259,7 +372,9 @@ fn emit_lab_requests(
         control.pending_subdivide = false;
         requests.write(MeshOpsRequest {
             entity: entities.subdivision,
-            command: MeshEditCommand::SubdivideCatmullClark { levels: 1 },
+            command: MeshEditCommand::SubdivideCatmullClark {
+                levels: config.subdivision_levels,
+            },
             prefer_async: true,
         });
     }
@@ -272,7 +387,7 @@ fn emit_lab_requests(
                 entity: entities.crater,
                 command: MeshEditCommand::OffsetVertices {
                     vertices,
-                    offset: Vec3::new(0.0, -0.08, 0.0),
+                    offset: Vec3::new(0.0, -config.crater_depth, 0.0),
                 },
                 prefer_async: false,
             });

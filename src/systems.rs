@@ -306,6 +306,25 @@ fn apply_command(mesh: &mut HalfEdgeMesh, command: &MeshEditCommand) -> Result<b
             mesh.offset_vertices(vertices, *offset)?;
             Ok(false)
         }
+        MeshEditCommand::PaintVertices { vertices, config } => {
+            mesh.paint_vertices(vertices, config)?;
+            Ok(false)
+        }
+        MeshEditCommand::ProjectUvs { projection } => {
+            mesh.project_uvs(projection)?;
+            if mesh.has_loop_normals() {
+                let _ = mesh.recompute_tangents();
+            }
+            Ok(false)
+        }
+        MeshEditCommand::BridgeBoundaryLoops {
+            first_loop,
+            second_loop,
+            config,
+        } => {
+            mesh.bridge_boundary_loops(*first_loop, *second_loop, config)?;
+            Ok(true)
+        }
         MeshEditCommand::RecomputeNormals => {
             mesh.recompute_normals()?;
             Ok(false)
