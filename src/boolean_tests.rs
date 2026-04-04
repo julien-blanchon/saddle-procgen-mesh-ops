@@ -8,9 +8,11 @@ fn offset_cube(offset: Vec3) -> HalfEdgeMesh {
 }
 
 fn bounds(mesh: &HalfEdgeMesh) -> (Vec3, Vec3) {
-    let mut positions = mesh
-        .vertex_ids()
-        .map(|vertex| mesh.vertex_payload(vertex).expect("vertex payload").position);
+    let mut positions = mesh.vertex_ids().map(|vertex| {
+        mesh.vertex_payload(vertex)
+            .expect("vertex payload")
+            .position
+    });
     let first = positions.next().expect("mesh has vertices");
     positions.fold((first, first), |(min, max), position| {
         (min.min(position), max.max(position))

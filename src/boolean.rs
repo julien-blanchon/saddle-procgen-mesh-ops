@@ -101,12 +101,10 @@ impl HalfEdgeMesh {
             for y in 0..grid.y {
                 for x in 0..grid.x {
                     let center = voxel_center(min, config.voxel_size, x, y, z);
-                    let inside_a =
-                        point_within_bounds(center, self_bounds)
-                            && point_inside_mesh(center, &self_triangles);
-                    let inside_b =
-                        point_within_bounds(center, other_bounds)
-                            && point_inside_mesh(center, &other_triangles);
+                    let inside_a = point_within_bounds(center, self_bounds)
+                        && point_inside_mesh(center, &self_triangles);
+                    let inside_b = point_within_bounds(center, other_bounds)
+                        && point_inside_mesh(center, &other_triangles);
 
                     occupied[grid_index(grid, x, y, z)] = match operation {
                         MeshBooleanOperation::Union => inside_a || inside_b,
@@ -176,7 +174,9 @@ fn boolean_bounds(
             self_bounds.0.min(other_bounds.0) - padding,
             self_bounds.1.max(other_bounds.1) + padding,
         )),
-        MeshBooleanOperation::Difference => Some((self_bounds.0 - padding, self_bounds.1 + padding)),
+        MeshBooleanOperation::Difference => {
+            Some((self_bounds.0 - padding, self_bounds.1 + padding))
+        }
         MeshBooleanOperation::Intersection => {
             let min = self_bounds.0.max(other_bounds.0) - padding;
             let max = self_bounds.1.min(other_bounds.1) + padding;
@@ -185,7 +185,11 @@ fn boolean_bounds(
     }
 }
 
-fn build_grid_size(min: Vec3, max: Vec3, config: &MeshBooleanConfig) -> Result<GridSize, MeshError> {
+fn build_grid_size(
+    min: Vec3,
+    max: Vec3,
+    config: &MeshBooleanConfig,
+) -> Result<GridSize, MeshError> {
     let extent = (max - min).max(Vec3::splat(config.voxel_size));
     let x = (extent.x / config.voxel_size).ceil() as usize;
     let y = (extent.y / config.voxel_size).ceil() as usize;
@@ -225,7 +229,10 @@ fn mesh_triangles(mesh: &HalfEdgeMesh) -> Result<Vec<Triangle>, MeshError> {
 }
 
 fn expand_bounds(bounds: (Vec3, Vec3), epsilon: f32) -> (Vec3, Vec3) {
-    (bounds.0 - Vec3::splat(epsilon), bounds.1 + Vec3::splat(epsilon))
+    (
+        bounds.0 - Vec3::splat(epsilon),
+        bounds.1 + Vec3::splat(epsilon),
+    )
 }
 
 fn point_within_bounds(point: Vec3, bounds: (Vec3, Vec3)) -> bool {
@@ -297,7 +304,8 @@ fn build_voxel_surface(
                 for face in exposed_faces(grid, occupied, x, y, z) {
                     let corners = face.corner_indices(x, y, z);
                     let positions = corners.map(|corner| {
-                        min + voxel_size * Vec3::new(corner.0 as f32, corner.1 as f32, corner.2 as f32)
+                        min + voxel_size
+                            * Vec3::new(corner.0 as f32, corner.1 as f32, corner.2 as f32)
                     });
                     let mut vertex_indices = corners.map(|corner| {
                         *vertex_cache.entry(corner).or_insert_with(|| {
@@ -315,14 +323,15 @@ fn build_voxel_surface(
                         })
                     });
 
-                    if triangle_normal(positions[0], positions[1], positions[2])
-                        .dot(face.normal())
+                    if triangle_normal(positions[0], positions[1], positions[2]).dot(face.normal())
                         < 0.0
                     {
                         vertex_indices.reverse();
                     }
 
-                    snapshot.faces.push(PolygonFace::new(vertex_indices.to_vec()));
+                    snapshot
+                        .faces
+                        .push(PolygonFace::new(vertex_indices.to_vec()));
                 }
             }
         }
@@ -363,36 +372,21 @@ impl ExposedFace {
 
     fn corner_indices(self, x: usize, y: usize, z: usize) -> [(usize, usize, usize); 4] {
         match self {
-            Self::NegX => [
-                (x, y, z),
-                (x, y + 1, z),
-                (x, y + 1, z + 1),
-                (x, y, z + 1),
-            ],
+            Self::NegX => [(x, y, z), (x, y + 1, z), (x, y + 1, z + 1), (x, y, z + 1)],
             Self::PosX => [
                 (x + 1, y, z),
                 (x + 1, y, z + 1),
                 (x + 1, y + 1, z + 1),
                 (x + 1, y + 1, z),
             ],
-            Self::NegY => [
-                (x, y, z),
-                (x, y, z + 1),
-                (x + 1, y, z + 1),
-                (x + 1, y, z),
-            ],
+            Self::NegY => [(x, y, z), (x, y, z + 1), (x + 1, y, z + 1), (x + 1, y, z)],
             Self::PosY => [
                 (x, y + 1, z),
                 (x + 1, y + 1, z),
                 (x + 1, y + 1, z + 1),
                 (x, y + 1, z + 1),
             ],
-            Self::NegZ => [
-                (x, y, z),
-                (x + 1, y, z),
-                (x + 1, y + 1, z),
-                (x, y + 1, z),
-            ],
+            Self::NegZ => [(x, y, z), (x + 1, y, z), (x + 1, y + 1, z), (x, y + 1, z)],
             Self::PosZ => [
                 (x, y, z + 1),
                 (x, y + 1, z + 1),
@@ -411,17 +405,26 @@ fn exposed_faces(
     z: usize,
 ) -> impl Iterator<Item = ExposedFace> {
     [
-        (ExposedFace::NegX, x == 0 || !occupied[grid_index(grid, x - 1, y, z)]),
+        (
+            ExposedFace::NegX,
+            x == 0 || !occupied[grid_index(grid, x - 1, y, z)],
+        ),
         (
             ExposedFace::PosX,
             x + 1 >= grid.x || !occupied[grid_index(grid, x + 1, y, z)],
         ),
-        (ExposedFace::NegY, y == 0 || !occupied[grid_index(grid, x, y - 1, z)]),
+        (
+            ExposedFace::NegY,
+            y == 0 || !occupied[grid_index(grid, x, y - 1, z)],
+        ),
         (
             ExposedFace::PosY,
             y + 1 >= grid.y || !occupied[grid_index(grid, x, y + 1, z)],
         ),
-        (ExposedFace::NegZ, z == 0 || !occupied[grid_index(grid, x, y, z - 1)]),
+        (
+            ExposedFace::NegZ,
+            z == 0 || !occupied[grid_index(grid, x, y, z - 1)],
+        ),
         (
             ExposedFace::PosZ,
             z + 1 >= grid.z || !occupied[grid_index(grid, x, y, z + 1)],
