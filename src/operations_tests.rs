@@ -359,7 +359,8 @@ fn planar_projection_assigns_loop_uvs() {
 #[test]
 fn vertex_painting_blends_existing_color() {
     let mut mesh = HalfEdgeMesh::unit_quad().expect("quad");
-    mesh.vertex_payload_mut(VertexId(0)).expect("vertex").color = Some(Vec4::new(0.2, 0.2, 0.2, 1.0));
+    mesh.vertex_payload_mut(VertexId(0)).expect("vertex").color =
+        Some(Vec4::new(0.2, 0.2, 0.2, 1.0));
     mesh.paint_vertices(
         &[VertexId(0)],
         &VertexColorPaintConfig {

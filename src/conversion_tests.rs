@@ -59,9 +59,8 @@ fn uv_attributes_survive_roundtrip() {
 fn vertex_colors_survive_roundtrip() {
     let mut mesh = HalfEdgeMesh::unit_quad().expect("quad");
     for vertex in mesh.vertex_ids().collect::<Vec<_>>() {
-        mesh.vertex_payload_mut(vertex)
-            .expect("vertex")
-            .color = Some(Vec4::new(vertex.index() as f32 / 4.0, 0.2, 0.8, 1.0));
+        mesh.vertex_payload_mut(vertex).expect("vertex").color =
+            Some(Vec4::new(vertex.index() as f32 / 4.0, 0.2, 0.8, 1.0));
     }
     mesh.triangulate_faces().expect("triangulate");
     mesh.recompute_normals().expect("normals");

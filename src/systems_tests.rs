@@ -3,8 +3,8 @@ use bevy::{ecs::message::Messages, prelude::*};
 use super::*;
 use crate::{
     EditableMesh, MeshBooleanConfig, MeshBooleanOperation, MeshBridgeConfig, MeshOpsPlugin,
-    MeshOpsRequest, MeshOpsTarget, MeshUvProjection, MeshUvProjectionMode,
-    PolygonFace, VertexColorPaintConfig, VertexId, VertexPayload,
+    MeshOpsRequest, MeshOpsTarget, MeshUvProjection, MeshUvProjectionMode, PolygonFace,
+    VertexColorPaintConfig, VertexId, VertexPayload,
 };
 
 fn setup_app() -> (App, Entity) {
@@ -226,7 +226,11 @@ fn non_topology_commands_update_payload_and_loop_attributes() {
         .get::<EditableMesh>(entity)
         .expect("editable after payload update");
     assert_eq!(
-        editable.mesh.vertex_payload(VertexId(0)).expect("vertex").color,
+        editable
+            .mesh
+            .vertex_payload(VertexId(0))
+            .expect("vertex")
+            .color,
         Some(Vec4::new(0.9, 0.2, 0.1, 1.0))
     );
     assert!(editable.mesh.has_loop_uvs());

@@ -23,7 +23,9 @@ pub use error::MeshError;
 pub use ids::{EdgeId, FaceId, HalfEdgeId, VertexId};
 pub use mesh::{FaceKind, HalfEdgeMesh};
 pub use messages::{MeshEditCommand, MeshOpsFailed, MeshOpsRequest, MeshTopologyChanged};
-pub use operations::{MeshBridgeConfig, MeshUvProjection, MeshUvProjectionMode, VertexColorPaintConfig};
+pub use operations::{
+    MeshBridgeConfig, MeshUvProjection, MeshUvProjectionMode, VertexColorPaintConfig,
+};
 pub use resources::MeshOpsConfig;
 pub use simplify::{MeshDecimationConfig, MeshLodConfig, MeshLodLevel};
 pub use topology::{MeshSnapshot, PolygonFace};

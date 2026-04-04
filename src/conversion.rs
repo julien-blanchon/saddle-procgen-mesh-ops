@@ -108,9 +108,8 @@ impl HalfEdgeMesh {
                 let vertex_index = *welded_vertices.entry(key).or_insert_with(|| {
                     snapshot.vertices.push(crate::VertexPayload {
                         position: position_vec,
-                        color: colors.and_then(|values| {
-                            values.get(corner_index).copied().map(Vec4::from)
-                        }),
+                        color: colors
+                            .and_then(|values| values.get(corner_index).copied().map(Vec4::from)),
                         ..default()
                     });
                     snapshot.vertices.len() - 1
@@ -147,9 +146,13 @@ impl HalfEdgeMesh {
 
         let has_uvs = export_mesh.has_loop_uvs();
         let has_tangents = export_mesh.has_loop_tangents();
-        let has_colors = export_mesh
-            .vertex_ids()
-            .any(|vertex| export_mesh.vertex_payload(vertex).ok().and_then(|payload| payload.color).is_some());
+        let has_colors = export_mesh.vertex_ids().any(|vertex| {
+            export_mesh
+                .vertex_payload(vertex)
+                .ok()
+                .and_then(|payload| payload.color)
+                .is_some()
+        });
 
         let mut positions = Vec::<[f32; 3]>::new();
         let mut normals = Vec::<[f32; 3]>::new();
