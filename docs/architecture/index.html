@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<script>
+			(() => {
+				document.documentElement.classList.add('js');
+				const storageKey = 'docs-theme';
+				const storedTheme = localStorage.getItem(storageKey);
+				const isDark =
+					storedTheme === 'dark' ||
+					(storedTheme !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+				document.documentElement.classList.toggle('dark', isDark);
+				document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
+			})();
+		</script>
+		<link href="../../_app/immutable/entry/start.BSs3EXWN.js" rel="modulepreload">
+		<link href="../../_app/immutable/chunks/Bs2d8EMR.js" rel="modulepreload">
+		<link href="../../_app/immutable/chunks/D6rU7RKI.js" rel="modulepreload">
+		<link href="../../_app/immutable/entry/app.CpTQ_SbY.js" rel="modulepreload">
+		<link href="../../_app/immutable/chunks/D2PL5qU_.js" rel="modulepreload">
+		<link href="../../_app/immutable/chunks/DsnmJJEf.js" rel="modulepreload">
+		<link href="../../_app/immutable/chunks/CGbRUU1n.js" rel="modulepreload">
+		<link href="../../_app/immutable/nodes/0.gay9_P-B.js" rel="modulepreload">
+		<link href="../../_app/immutable/chunks/Cgr9K6zK.js" rel="modulepreload">
+		<link href="../../_app/immutable/chunks/DxAfs5N0.js" rel="modulepreload">
+		<link href="../../_app/immutable/chunks/D3udy8KQ.js" rel="modulepreload">
+		<link href="../../_app/immutable/nodes/2.Bv9WoXGU.js" rel="modulepreload">
+		<link href="../../_app/immutable/chunks/BgUbEDSQ.js" rel="modulepreload">
+		<link href="../../_app/immutable/nodes/5.BOp3_yHr.js" rel="modulepreload">
+		<link href="../../_app/immutable/chunks/O7QY0ZL7.js" rel="modulepreload">
+		<!--12qhfyh--><meta name="theme-color" content="#ffffff"/> <link rel="icon" type="image/svg+xml" href="../../favicon.svg"/> <meta name="description" content="Runtime mesh topology editing and mesh processing for Bevy"/><!----><!--1bpnej--><!--[0--><meta name="description" content="Architecture documentation"/><!--]--><!----><title>Architecture - saddle-procgen-mesh-ops</title>
+		<link href="../../_app/immutable/assets/manifest.DAGDUwuc.css" rel="stylesheet">
+		<link href="../../_app/immutable/assets/0.Cu___w4E.css" rel="stylesheet">
+	</head>
+	<body data-sveltekit-preload-data="hover">
+		<div style="display: contents"><!--[--><!--[0--><!--[--><!--[0--><!--[--><main class="relative h-dvh bg-background text-foreground"><div class="fixed inset-x-0 top-0 z-50 flex items-center justify-between border-b border-border bg-background px-4 py-1.5 lg:hidden"><a href="../../" class="inline-flex items-center gap-1 px-2 py-2 text-sm tracking-tight text-foreground"><span class="font-medium tracking-tight text-foreground">saddle-procgen-mesh-ops</span></a> <button class="-mr-2 inline-flex size-10 items-center justify-center gap-2 rounded-sm text-sm whitespace-nowrap text-foreground transition-colors duration-150 ease-out hover:bg-background-muted lg:hidden" aria-label="Toggle menu"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="currentColor" preserveAspectRatio="xMidYMid meet" width="20" height="20" aria-hidden="true"><!--[-1--><!--]--><path d="M4 6H28V8H4z"></path><path d="M4 24H28V26H4z"></path><path d="M4 12H28V14H4z"></path><path d="M4 18H28V20H4z"></path></svg><!----></button></div> <!--[-1--><!--]--><!----> <div class="flex h-full w-full min-w-0 lg:grid lg:grid-cols-[22rem_minmax(0,1fr)] lg:pr-4 xl:grid-cols-[22rem_minmax(0,56rem)_18rem] xl:justify-center"><div class="hidden lg:block"><aside class="flex h-dvh flex-col bg-background" aria-label="Documentation sidebar"><div class="flex flex-col gap-4 p-4"><a href="../../" class="flex items-center gap-2"><span class="text-xl font-medium tracking-tight text-foreground">saddle-procgen-mesh-ops</span></a> <!--[0--><button type="button" class="group inset-shadow relative flex h-9 w-full items-center gap-2 rounded-sm bg-background-inset px-3 py-1.5 text-sm font-medium text-foreground-muted/70 transition-[color] duration-150 ease-out hover:text-foreground-muted"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="currentColor" preserveAspectRatio="xMidYMid meet" width="16" height="16" aria-hidden="true" class="text-foreground-muted/70"><!--[-1--><!--]--><path d="M29,27.5859l-7.5521-7.5521a11.0177,11.0177,0,1,0-1.4141,1.4141L27.5859,29ZM4,13a9,9,0,1,1,9,9A9.01,9.01,0,0,1,4,13Z"></path></svg><!----> <span class="flex-1 text-left">Search...</span> <!--[0--><kbd class="card pointer-events-none relative hidden h-5 items-center gap-1 rounded-xs bg-background px-1.5 font-mono text-[10px] font-medium text-foreground-muted/70 select-none sm:flex">⌘ K</kbd><!--]--></button><!--]--><!----></div> <div class="relative flex flex-col overflow-hidden flex-1 svelte-1lcbi17"><div class="scrollbar-hide min-h-0 w-full flex-1 overflow-x-hidden overflow-y-auto p-4 svelte-1lcbi17" style="mask-image: linear-gradient(to bottom, transparent, black 16px, black calc(100% - 16px), transparent); -webkit-mask-image: linear-gradient(to bottom, transparent, black 16px, black calc(100% - 16px), transparent);"><nav class="flex flex-col space-y-1" aria-label="Documentation pages"><h4 class="mb-2 ml-2 text-xs font-medium tracking-wide text-foreground-muted/70 uppercase">Docs</h4> <!--[--><!--[-1--><a href="../../" class="block rounded-sm px-3 py-1.5 text-sm tracking-normal transition-all duration-150 ease-out text-foreground-muted hover:bg-background-muted hover:text-foreground">Overview</a><!--]--><!--[0--><button class="flex w-full items-center justify-between rounded-sm px-3 py-1.5 text-sm font-medium tracking-normal transition-all duration-150 ease-out hover:bg-background-muted hover:text-foreground text-foreground-muted"><span>Documentation</span> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="currentColor" preserveAspectRatio="xMidYMid meet" width="16" height="16" aria-hidden="true" class="size-4 transition-transform duration-150"><!--[-1--><!--]--><path d="M22 16 12 26 10.6 24.6 19.2 16 10.6 7.4 12 6z"></path></svg><!----></button> <!--[-1--><!--]--><!--]--><!--[0--><button class="flex w-full items-center justify-between rounded-sm px-3 py-1.5 text-sm font-medium tracking-normal transition-all duration-150 ease-out hover:bg-background-muted hover:text-foreground text-foreground-muted"><span>Demos</span> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="currentColor" preserveAspectRatio="xMidYMid meet" width="16" height="16" aria-hidden="true" class="size-4 transition-transform duration-150"><!--[-1--><!--]--><path d="M22 16 12 26 10.6 24.6 19.2 16 10.6 7.4 12 6z"></path></svg><!----></button> <!--[-1--><!--]--><!--]--><!--]--></nav><!----></div></div><!----> <div class="flex items-center gap-1 p-4"><!--[0--><button type="button" class="group transition-scale inset-shadow relative inline-flex size-7 items-center justify-center rounded-sm bg-background-inset text-foreground duration-150 ease-out active:scale-[0.95]" aria-label="Switch to dark mode"><span class="sr-only">Switch to dark mode</span> <span class="transition-transform duration-150 ease-out"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="currentColor" preserveAspectRatio="xMidYMid meet" width="16" height="16" aria-hidden="true"><!--[-1--><!--]--><path d="M16,12a4,4,0,1,1-4,4,4.0045,4.0045,0,0,1,4-4m0-2a6,6,0,1,0,6,6,6,6,0,0,0-6-6Z" transform="translate(0 .005)"></path><path d="M6.854 5.375H8.854V10.333H6.854z" transform="rotate(-45 7.86 7.856)"></path><path d="M2 15.005H7V17.005000000000003H2z"></path><path d="M5.375 23.147H10.333V25.147H5.375z" transform="rotate(-45 7.86 24.149)"></path><path d="M15 25.005H17V30.005H15z"></path><path d="M23.147 21.668H25.147V26.625999999999998H23.147z" transform="rotate(-45 24.152 24.149)"></path><path d="M25 15.005H30V17.005000000000003H25z"></path><path d="M21.668 6.854H26.625999999999998V8.854H21.668z" transform="rotate(-45 24.152 7.856)"></path><path d="M15 2.005H17V7.005H15z"></path></svg><!----></span> <span class="absolute transition-transform duration-150 ease-out scale-0 blur-[2px]"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="currentColor" preserveAspectRatio="xMidYMid meet" width="16" height="16" aria-hidden="true"><!--[-1--><!--]--><path d="M13.5025,5.4136A15.0755,15.0755,0,0,0,25.096,23.6082a11.1134,11.1134,0,0,1-7.9749,3.3893c-.1385,0-.2782.0051-.4178,0A11.0944,11.0944,0,0,1,13.5025,5.4136M14.98,3a1.0024,1.0024,0,0,0-.1746.0156A13.0959,13.0959,0,0,0,16.63,28.9973c.1641.006.3282,0,.4909,0a13.0724,13.0724,0,0,0,10.702-5.5556,1.0094,1.0094,0,0,0-.7833-1.5644A13.08,13.08,0,0,1,15.8892,4.38,1.0149,1.0149,0,0,0,14.98,3Z"></path></svg><!----></span></button><!--]--> <!--[0--><a class="group transition-scale inset-shadow relative inline-flex size-7 cursor-pointer items-center justify-center rounded-sm bg-background-inset text-foreground duration-150 ease-out active:scale-[0.95]" href="https://github.com/julien-blanchon/saddle-procgen-mesh-ops" target="_blank" rel="noreferrer" aria-label="Open project repository (opens in a new tab)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="currentColor" preserveAspectRatio="xMidYMid meet" width="16" height="16" aria-hidden="true" class="size-4 flex-none"><!--[-1--><!--]--><path fill-rule="evenodd" d="M16,2a14,14,0,0,0-4.43,27.28c.7.13,1-.3,1-.67s0-1.21,0-2.38c-3.89.84-4.71-1.88-4.71-1.88A3.71,3.71,0,0,0,6.24,22.3c-1.27-.86.1-.85.1-.85A2.94,2.94,0,0,1,8.48,22.9a3,3,0,0,0,4.08,1.16,2.93,2.93,0,0,1,.88-1.87c-3.1-.36-6.37-1.56-6.37-6.92a5.4,5.4,0,0,1,1.44-3.76,5,5,0,0,1,.14-3.7s1.17-.38,3.85,1.43a13.3,13.3,0,0,1,7,0c2.67-1.81,3.84-1.43,3.84-1.43a5,5,0,0,1,.14,3.7,5.4,5.4,0,0,1,1.44,3.76c0,5.38-3.27,6.56-6.39,6.91a3.33,3.33,0,0,1,.95,2.59c0,1.87,0,3.38,0,3.84s.25.81,1,.67A14,14,0,0,0,16,2Z"></path></svg><!----></a><!--]--></div></aside><!----></div> <div class="inset-shadow relative mx-auto h-full w-full max-w-4xl min-w-0 overflow-hidden border border-border bg-background-inset pt-12 lg:my-4 lg:max-h-[calc(100dvh-2rem)] lg:overflow-visible lg:rounded-xl lg:pt-0"><div class="relative flex flex-col overflow-hidden mx-auto h-full w-full lg:max-h-[calc(100dvh-2rem)] svelte-1lcbi17"><div id="docs-content-container" class="scrollbar-hide min-h-0 w-full flex-1 overflow-x-hidden overflow-y-auto rounded-lg overscroll-none flex flex-col gap-8 px-4 py-8 lg:px-8 svelte-1lcbi17" style="mask-image: linear-gradient(to bottom, transparent, black 16px, black calc(100% - 16px), transparent); -webkit-mask-image: linear-gradient(to bottom, transparent, black 16px, black calc(100% - 16px), transparent);"><section class="min-w-0 flex-1 space-y-8"><div class="space-y-4"><!--[-1--><!--]--> <h1 class="scroll-m-20 text-3xl font-medium tracking-tight text-foreground">Architecture</h1> <!--[0--><p class="max-w-4xl text-base font-normal tracking-normal text-foreground-muted">Architecture documentation</p><!--]--> <!--[0--><!--[0--><div class="relative z-20 mt-8 flex w-full gap-2 lg:hidden"><!--[0--><div class="inset-shadow w-full rounded-md bg-background-inset p-1.5"><button type="button" aria-live="polite" aria-disabled="false" class="card relative inline-flex h-9 w-full font-medium shrink-0 overflow-hidden items-center justify-center gap-2 rounded-sm bg-background px-4 py-2 text-sm whitespace-nowrap text-foreground transition-[background-color] duration-150 ease-out hover:bg-background-muted disabled:pointer-events-none disabled:opacity-50 has-[>svg]:px-3 [&amp;_svg]:pointer-events-none [&amp;_svg]:shrink-0 [&amp;_svg:not([class*=size-])]:size-4 flex-1"><span class="grid place-items-center" style="grid-template-areas: 'content';"><!----><span class="flex items-center gap-2 font-medium tracking-normal text-foreground will-change-transform" style="grid-area: content;"><!--[-1--><svg role="img" viewBox="0 0 24 24" fill="none" aria-hidden="true" class="size-4 flex-none"><title>Markdown</title><path class="stroke-current" d="M1.212 5.5h21.576c.407 0 .712.317.712.679v11.549a.695.695 0 0 1-.712.677H1.212a.695.695 0 0 1-.712-.678V6.18c0-.362.305-.679.712-.679Z"></path><path class="fill-current" d="M3.03 15.96V7.946h2.425l2.424 2.946 2.424-2.946h2.424v8.014h-2.424v-4.596L7.88 14.31l-2.424-2.946v4.596H3.03Zm15.152 0-3.636-3.89h2.424V7.947h2.424v4.125h2.424l-3.636 3.889Z"></path></svg><!--]--> <span>Copy Markdown</span></span><!----></span></button></div><!--]--> <!--[0--><div class="inset-shadow relative rounded-md bg-background-inset p-1.5"><button id="mobile-doc-actions-menu-trigger" type="button" class="card relative inline-flex h-9 w-full font-medium shrink-0 overflow-hidden items-center justify-center gap-2 rounded-sm bg-background px-4 py-2 text-sm whitespace-nowrap text-foreground transition-[background-color] duration-150 ease-out hover:bg-background-muted disabled:pointer-events-none disabled:opacity-50 has-[>svg]:px-3 [&amp;_svg]:pointer-events-none [&amp;_svg]:shrink-0 [&amp;_svg:not([class*=size-])]:size-4 flex-1 w-auto! px-2.5!" aria-label="More actions" aria-haspopup="menu" aria-controls="mobile-doc-actions-menu" aria-expanded="false"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="currentColor" preserveAspectRatio="xMidYMid meet" width="16" height="16" aria-hidden="true" class="size-4"><!--[-1--><!--]--><circle cx="8" cy="16" r="2"></circle><circle cx="16" cy="16" r="2"></circle><circle cx="24" cy="16" r="2"></circle></svg><!----></button> <!--[-1--><!--]--></div><!--]--></div><!--]--><!--]--></div> <hr class="text-border"/> <div><!--[--><article data-doc-content="" class="w-full max-w-4xl"><!----><h2>Layers</h2>
+<p><code>saddle-procgen-mesh-ops</code> is split into two layers:</p>
+<ol>
+<li>Pure core:<ul>
+<li>dense typed-ID half-edge/DCEL-style topology</li>
+<li>polygon snapshot rebuild path for complex edits</li>
+<li>voxel boolean CSG for closed-mesh union / intersection / difference</li>
+<li>validation, traversal, conversion helpers</li>
+</ul>
+</li>
+<li>Thin Bevy runtime:<ul>
+<li><code>EditableMesh</code> + <code>MeshOpsTarget</code> components</li>
+<li><code>MeshOpsRequest</code> / <code>MeshTopologyChanged</code> / <code>MeshOpsFailed</code> messages</li>
+<li>async subdivision / boolean handoff</li>
+<li>sync back to <code>Assets&lt;Mesh&gt;</code></li>
+<li>optional gizmo debug draw</li>
+</ul>
+</li>
+</ol>
+<h2>Storage Layout</h2>
+<ul>
+<li>Vertices, half-edges, edges, and faces are stored in dense <code>Vec</code> arenas.</li>
+<li>Public IDs are typed <code>u32</code> newtypes: <code>VertexId</code>, <code>HalfEdgeId</code>, <code>EdgeId</code>, <code>FaceId</code>.</li>
+<li>Each half-edge stores:<ul>
+<li><code>origin</code></li>
+<li><code>twin</code></li>
+<li><code>next</code></li>
+<li><code>prev</code></li>
+<li><code>face</code></li>
+<li><code>edge</code></li>
+<li>per-loop attributes (<code>uv</code>, <code>normal</code>, <code>tangent</code>)</li>
+</ul>
+</li>
+<li>Each vertex stores one outgoing half-edge plus the per-vertex payload (<code>position</code>, optional weight/tag).</li>
+<li>Each vertex stores one outgoing half-edge plus the per-vertex payload (<code>position</code>, optional color, optional weight/tag).</li>
+<li>Each face stores one representative half-edge, <code>FaceKind</code>, and optional material/region metadata.</li>
+</ul>
+<h2>Boundary Representation</h2>
+<ul>
+<li>Boundary edges are represented by ghost boundary half-edges and explicit boundary faces.</li>
+<li>This keeps hot traversal paths simple:<ul>
+<li>every half-edge always has a twin</li>
+<li>boundary detection is a face-kind query, not an <code>Option</code></li>
+</ul>
+</li>
+<li><code>boundary_loops()</code> walks those explicit boundary faces and returns loop half-edge IDs.</li>
+</ul>
+<h2>Invariants</h2>
+<p><code>validate()</code> checks both storage integrity and manifold expectations.</p>
+<p>Storage checks:</p>
+<ul>
+<li>every stored ID reference is in range</li>
+<li>every half-edge has a valid twin</li>
+<li><code>next</code> / <code>prev</code> rings close correctly</li>
+<li>every face loop points back to the correct face</li>
+<li>every vertex’s outgoing half-edge really originates at that vertex</li>
+</ul>
+<p>Manifold checks:</p>
+<ul>
+<li>each edge has two distinct incident faces</li>
+<li>one-ring traversal around a vertex visits the same number of outgoing half-edges as a raw scan</li>
+</ul>
+<h2>Attribute Layers</h2>
+<ul>
+<li>Vertex payloads:<ul>
+<li>position</li>
+<li>optional color</li>
+<li>optional scalar weight</li>
+<li>optional tag</li>
+</ul>
+</li>
+<li>Loop payloads:<ul>
+<li>UV</li>
+<li>normal</li>
+<li>tangent with handedness sign</li>
+</ul>
+</li>
+<li>Face payloads:<ul>
+<li>optional material ID</li>
+<li>optional region ID</li>
+</ul>
+</li>
+</ul>
+<p>Loop attributes are first-class because UV seams, hard normals, and tangents are corner data, not strictly vertex data.</p>
+<h2>Edit Pipeline</h2>
+<ul>
+<li>Small, local operations either mutate payloads directly or edit a <code>MeshSnapshot</code>.</li>
+<li>UV projection and vertex painting stay in the lightweight payload-edit path because they do not change topology.</li>
+<li>Snapshot edits rebuild the half-edge topology with <code>HalfEdgeMesh::from_snapshot(...)</code>.</li>
+<li>Boundary-loop bridging also routes through snapshots so it can author a strip of quads and then immediately revalidate the stitched surface.</li>
+<li>Boolean CSG samples closed operands into a bounded voxel grid, reconstructs exposed quads, and then rebuilds through the same validated snapshot path.</li>
+<li>Rebuilds re-run validation immediately, so broken edits fail fast.</li>
+</ul>
+<p>This pass intentionally favors:</p>
+<ul>
+<li>deterministic rebuilds</li>
+<li>simple reasoning</li>
+<li>good tests</li>
+</ul>
+<p>over:</p>
+<ul>
+<li>maximum in-place mutation performance</li>
+<li>non-manifold feature breadth</li>
+</ul>
+<h2>Import / Export</h2>
+<p>Import:</p>
+<ul>
+<li>accepts indexed <code>Mesh</code> values with <code>PrimitiveTopology::TriangleList</code></li>
+<li>welds shared topology by exact position equality</li>
+<li>preserves normals/UVs/tangents as loop attributes where present</li>
+</ul>
+<p>Export:</p>
+<ul>
+<li>clones the editable mesh</li>
+<li>recomputes normals/tangents on demand when the source lacks them</li>
+<li>triangulates deterministically with a fan per polygon face</li>
+<li>emits one Bevy vertex per face corner so seams survive export</li>
+<li>duplicates per-vertex payload colors across those emitted face corners when <code>Mesh::ATTRIBUTE_COLOR</code> is present</li>
+</ul>
+<h2>ECS Runtime Flow</h2>
+<ol>
+<li><code>MeshOpsRequest</code> arrives for an entity with <code>EditableMesh</code> + <code>MeshOpsTarget</code>.</li>
+<li>Light operations run inline in <code>MeshOpsSystems::ProcessRequests</code>.</li>
+<li>Heavy subdivision requests may spawn async jobs.</li>
+<li><code>MeshTopologyChanged</code> is emitted on success, <code>MeshOpsFailed</code> on failure.</li>
+<li><code>MeshOpsSystems::SyncMeshes</code> rebuilds the Bevy <code>Mesh</code> only when the editable mesh revision changed.</li>
+<li>Sync clears the dirty flag and removes the entity <code>Aabb</code> when configured so bounds are refreshed.</li>
+</ol>
+<h2>Async Job Flow</h2>
+<ul>
+<li>Async work is used only for selected heavy operations, currently subdivision and larger boolean requests.</li>
+<li>Boolean requests can also move off-thread when their configured face threshold is exceeded.</li>
+<li>Each job stores the mesh revision it was spawned from.</li>
+<li>On completion:<ul>
+<li>if the entity still exists and the revision still matches, the result is applied</li>
+<li>if the entity changed in the meantime, the async result is dropped as stale</li>
+</ul>
+</li>
+</ul>
+<p>This avoids the common failure mode where slow jobs overwrite newer edits.</p>
+<!----></article> <!----><!--]--><!----> <!--[-1--><!--]--><!----></div></section><!----></div></div><!----></div> <aside class="hidden xl:block xl:w-full xl:py-8 xl:pr-4 xl:pl-4" aria-label="Table of contents and document actions"><div class="sticky top-8 flex h-full max-h-[calc(100dvh-4rem)] min-h-0 flex-col"><!--[0--><div class="min-h-0 flex-1"><div class="contents"><!--[-1--><div class="hidden text-sm tracking-normal text-foreground-muted/70 lg:block">No headings</div><!--]--></div><!----></div><!--]--> <!--[0--><!--[0--><div class="mt-auto"><div class="flex flex-col gap-1 text-sm"><!--[0--><button type="button" aria-live="polite" aria-disabled="false" class="group/option flex items-center gap-2 overflow-hidden rounded-sm px-3 py-1.5 text-left font-medium tracking-normal text-foreground-muted transition-colors duration-150 ease-out hover:bg-background-muted hover:text-foreground"><span class="grid" style="grid-template-areas: 'content';"><!----><span class="flex items-center gap-2" style="grid-area: content;"><!--[-1--><svg role="img" viewBox="0 0 24 24" fill="none" aria-hidden="true" class="size-4 flex-none"><title>Markdown</title><path class="stroke-current" d="M1.212 5.5h21.576c.407 0 .712.317.712.679v11.549a.695.695 0 0 1-.712.677H1.212a.695.695 0 0 1-.712-.678V6.18c0-.362.305-.679.712-.679Z"></path><path class="fill-current" d="M3.03 15.96V7.946h2.425l2.424 2.946 2.424-2.946h2.424v8.014h-2.424v-4.596L7.88 14.31l-2.424-2.946v4.596H3.03Zm15.152 0-3.636-3.89h2.424V7.947h2.424v4.125h2.424l-3.636 3.889Z"></path></svg><!--]--> <span>Copy as Markdown</span></span><!----></span></button><!--]--> <!--[0--><a class="group/option flex items-center gap-2 rounded-sm px-3 py-1.5 text-left font-medium tracking-normal text-foreground-muted transition-colors duration-150 ease-out hover:bg-background-muted hover:text-foreground" href="https://github.com/julien-blanchon/saddle-procgen-mesh-ops/blob/main/docs//saddle-procgen-mesh-ops/docs/architecture.md" target="_blank" rel="noreferrer"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="currentColor" preserveAspectRatio="xMidYMid meet" width="16" height="16" aria-hidden="true" class="size-4 flex-none"><!--[-1--><!--]--><path fill-rule="evenodd" d="M16,2a14,14,0,0,0-4.43,27.28c.7.13,1-.3,1-.67s0-1.21,0-2.38c-3.89.84-4.71-1.88-4.71-1.88A3.71,3.71,0,0,0,6.24,22.3c-1.27-.86.1-.85.1-.85A2.94,2.94,0,0,1,8.48,22.9a3,3,0,0,0,4.08,1.16,2.93,2.93,0,0,1,.88-1.87c-3.1-.36-6.37-1.56-6.37-6.92a5.4,5.4,0,0,1,1.44-3.76,5,5,0,0,1,.14-3.7s1.17-.38,3.85,1.43a13.3,13.3,0,0,1,7,0c2.67-1.81,3.84-1.43,3.84-1.43a5,5,0,0,1,.14,3.7,5.4,5.4,0,0,1,1.44,3.76c0,5.38-3.27,6.56-6.39,6.91a3.33,3.33,0,0,1,.95,2.59c0,1.87,0,3.38,0,3.84s.25.81,1,.67A14,14,0,0,0,16,2Z"></path></svg><!----> <span>Open in GitHub</span> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="currentColor" preserveAspectRatio="xMidYMid meet" width="16" height="16" aria-hidden="true" class="ml-auto size-4 flex-none"><!--[-1--><!--]--><path d="M26,28H6a2.0027,2.0027,0,0,1-2-2V6A2.0027,2.0027,0,0,1,6,4H16V6H6V26H26V16h2V26A2.0027,2.0027,0,0,1,26,28Z"></path><path d="M20 2 20 4 26.586 4 18 12.586 19.414 14 28 5.414 28 12 30 12 30 2 20 2z"></path></svg><!----> <span class="sr-only">(opens in a new tab)</span></a><!--]--> <!--[-1--><!--]--> <!--[-1--><!--]--></div></div><!--]--><!--]--></div></aside></div></main><!--]--><!--]--><!----> <!--[0--><!--[-1--><!--]--><!--]--><!--]--><!--]--> <!--[-1--><!--]--><!--]-->
+			
+			<script>
+				{
+					__sveltekit_py6rli = {
+						base: new URL("../..", location).pathname.slice(0, -1),
+						assets: "/saddle-procgen-mesh-ops"
+					};
+
+					const element = document.currentScript.parentElement;
+
+					Promise.all([
+						import("../../_app/immutable/entry/start.BSs3EXWN.js"),
+						import("../../_app/immutable/entry/app.CpTQ_SbY.js")
+					]).then(([kit, app]) => {
+						kit.start(app, element, {
+							node_ids: [0, 2, 5],
+							data: [null,null,{type:"data",data:{html:"\u003Ch2>Layers\u003C/h2>\n\u003Cp>\u003Ccode>saddle-procgen-mesh-ops\u003C/code> is split into two layers:\u003C/p>\n\u003Col>\n\u003Cli>Pure core:\u003Cul>\n\u003Cli>dense typed-ID half-edge/DCEL-style topology\u003C/li>\n\u003Cli>polygon snapshot rebuild path for complex edits\u003C/li>\n\u003Cli>voxel boolean CSG for closed-mesh union / intersection / difference\u003C/li>\n\u003Cli>validation, traversal, conversion helpers\u003C/li>\n\u003C/ul>\n\u003C/li>\n\u003Cli>Thin Bevy runtime:\u003Cul>\n\u003Cli>\u003Ccode>EditableMesh\u003C/code> + \u003Ccode>MeshOpsTarget\u003C/code> components\u003C/li>\n\u003Cli>\u003Ccode>MeshOpsRequest\u003C/code> / \u003Ccode>MeshTopologyChanged\u003C/code> / \u003Ccode>MeshOpsFailed\u003C/code> messages\u003C/li>\n\u003Cli>async subdivision / boolean handoff\u003C/li>\n\u003Cli>sync back to \u003Ccode>Assets&lt;Mesh&gt;\u003C/code>\u003C/li>\n\u003Cli>optional gizmo debug draw\u003C/li>\n\u003C/ul>\n\u003C/li>\n\u003C/ol>\n\u003Ch2>Storage Layout\u003C/h2>\n\u003Cul>\n\u003Cli>Vertices, half-edges, edges, and faces are stored in dense \u003Ccode>Vec\u003C/code> arenas.\u003C/li>\n\u003Cli>Public IDs are typed \u003Ccode>u32\u003C/code> newtypes: \u003Ccode>VertexId\u003C/code>, \u003Ccode>HalfEdgeId\u003C/code>, \u003Ccode>EdgeId\u003C/code>, \u003Ccode>FaceId\u003C/code>.\u003C/li>\n\u003Cli>Each half-edge stores:\u003Cul>\n\u003Cli>\u003Ccode>origin\u003C/code>\u003C/li>\n\u003Cli>\u003Ccode>twin\u003C/code>\u003C/li>\n\u003Cli>\u003Ccode>next\u003C/code>\u003C/li>\n\u003Cli>\u003Ccode>prev\u003C/code>\u003C/li>\n\u003Cli>\u003Ccode>face\u003C/code>\u003C/li>\n\u003Cli>\u003Ccode>edge\u003C/code>\u003C/li>\n\u003Cli>per-loop attributes (\u003Ccode>uv\u003C/code>, \u003Ccode>normal\u003C/code>, \u003Ccode>tangent\u003C/code>)\u003C/li>\n\u003C/ul>\n\u003C/li>\n\u003Cli>Each vertex stores one outgoing half-edge plus the per-vertex payload (\u003Ccode>position\u003C/code>, optional weight/tag).\u003C/li>\n\u003Cli>Each vertex stores one outgoing half-edge plus the per-vertex payload (\u003Ccode>position\u003C/code>, optional color, optional weight/tag).\u003C/li>\n\u003Cli>Each face stores one representative half-edge, \u003Ccode>FaceKind\u003C/code>, and optional material/region metadata.\u003C/li>\n\u003C/ul>\n\u003Ch2>Boundary Representation\u003C/h2>\n\u003Cul>\n\u003Cli>Boundary edges are represented by ghost boundary half-edges and explicit boundary faces.\u003C/li>\n\u003Cli>This keeps hot traversal paths simple:\u003Cul>\n\u003Cli>every half-edge always has a twin\u003C/li>\n\u003Cli>boundary detection is a face-kind query, not an \u003Ccode>Option\u003C/code>\u003C/li>\n\u003C/ul>\n\u003C/li>\n\u003Cli>\u003Ccode>boundary_loops()\u003C/code> walks those explicit boundary faces and returns loop half-edge IDs.\u003C/li>\n\u003C/ul>\n\u003Ch2>Invariants\u003C/h2>\n\u003Cp>\u003Ccode>validate()\u003C/code> checks both storage integrity and manifold expectations.\u003C/p>\n\u003Cp>Storage checks:\u003C/p>\n\u003Cul>\n\u003Cli>every stored ID reference is in range\u003C/li>\n\u003Cli>every half-edge has a valid twin\u003C/li>\n\u003Cli>\u003Ccode>next\u003C/code> / \u003Ccode>prev\u003C/code> rings close correctly\u003C/li>\n\u003Cli>every face loop points back to the correct face\u003C/li>\n\u003Cli>every vertex’s outgoing half-edge really originates at that vertex\u003C/li>\n\u003C/ul>\n\u003Cp>Manifold checks:\u003C/p>\n\u003Cul>\n\u003Cli>each edge has two distinct incident faces\u003C/li>\n\u003Cli>one-ring traversal around a vertex visits the same number of outgoing half-edges as a raw scan\u003C/li>\n\u003C/ul>\n\u003Ch2>Attribute Layers\u003C/h2>\n\u003Cul>\n\u003Cli>Vertex payloads:\u003Cul>\n\u003Cli>position\u003C/li>\n\u003Cli>optional color\u003C/li>\n\u003Cli>optional scalar weight\u003C/li>\n\u003Cli>optional tag\u003C/li>\n\u003C/ul>\n\u003C/li>\n\u003Cli>Loop payloads:\u003Cul>\n\u003Cli>UV\u003C/li>\n\u003Cli>normal\u003C/li>\n\u003Cli>tangent with handedness sign\u003C/li>\n\u003C/ul>\n\u003C/li>\n\u003Cli>Face payloads:\u003Cul>\n\u003Cli>optional material ID\u003C/li>\n\u003Cli>optional region ID\u003C/li>\n\u003C/ul>\n\u003C/li>\n\u003C/ul>\n\u003Cp>Loop attributes are first-class because UV seams, hard normals, and tangents are corner data, not strictly vertex data.\u003C/p>\n\u003Ch2>Edit Pipeline\u003C/h2>\n\u003Cul>\n\u003Cli>Small, local operations either mutate payloads directly or edit a \u003Ccode>MeshSnapshot\u003C/code>.\u003C/li>\n\u003Cli>UV projection and vertex painting stay in the lightweight payload-edit path because they do not change topology.\u003C/li>\n\u003Cli>Snapshot edits rebuild the half-edge topology with \u003Ccode>HalfEdgeMesh::from_snapshot(...)\u003C/code>.\u003C/li>\n\u003Cli>Boundary-loop bridging also routes through snapshots so it can author a strip of quads and then immediately revalidate the stitched surface.\u003C/li>\n\u003Cli>Boolean CSG samples closed operands into a bounded voxel grid, reconstructs exposed quads, and then rebuilds through the same validated snapshot path.\u003C/li>\n\u003Cli>Rebuilds re-run validation immediately, so broken edits fail fast.\u003C/li>\n\u003C/ul>\n\u003Cp>This pass intentionally favors:\u003C/p>\n\u003Cul>\n\u003Cli>deterministic rebuilds\u003C/li>\n\u003Cli>simple reasoning\u003C/li>\n\u003Cli>good tests\u003C/li>\n\u003C/ul>\n\u003Cp>over:\u003C/p>\n\u003Cul>\n\u003Cli>maximum in-place mutation performance\u003C/li>\n\u003Cli>non-manifold feature breadth\u003C/li>\n\u003C/ul>\n\u003Ch2>Import / Export\u003C/h2>\n\u003Cp>Import:\u003C/p>\n\u003Cul>\n\u003Cli>accepts indexed \u003Ccode>Mesh\u003C/code> values with \u003Ccode>PrimitiveTopology::TriangleList\u003C/code>\u003C/li>\n\u003Cli>welds shared topology by exact position equality\u003C/li>\n\u003Cli>preserves normals/UVs/tangents as loop attributes where present\u003C/li>\n\u003C/ul>\n\u003Cp>Export:\u003C/p>\n\u003Cul>\n\u003Cli>clones the editable mesh\u003C/li>\n\u003Cli>recomputes normals/tangents on demand when the source lacks them\u003C/li>\n\u003Cli>triangulates deterministically with a fan per polygon face\u003C/li>\n\u003Cli>emits one Bevy vertex per face corner so seams survive export\u003C/li>\n\u003Cli>duplicates per-vertex payload colors across those emitted face corners when \u003Ccode>Mesh::ATTRIBUTE_COLOR\u003C/code> is present\u003C/li>\n\u003C/ul>\n\u003Ch2>ECS Runtime Flow\u003C/h2>\n\u003Col>\n\u003Cli>\u003Ccode>MeshOpsRequest\u003C/code> arrives for an entity with \u003Ccode>EditableMesh\u003C/code> + \u003Ccode>MeshOpsTarget\u003C/code>.\u003C/li>\n\u003Cli>Light operations run inline in \u003Ccode>MeshOpsSystems::ProcessRequests\u003C/code>.\u003C/li>\n\u003Cli>Heavy subdivision requests may spawn async jobs.\u003C/li>\n\u003Cli>\u003Ccode>MeshTopologyChanged\u003C/code> is emitted on success, \u003Ccode>MeshOpsFailed\u003C/code> on failure.\u003C/li>\n\u003Cli>\u003Ccode>MeshOpsSystems::SyncMeshes\u003C/code> rebuilds the Bevy \u003Ccode>Mesh\u003C/code> only when the editable mesh revision changed.\u003C/li>\n\u003Cli>Sync clears the dirty flag and removes the entity \u003Ccode>Aabb\u003C/code> when configured so bounds are refreshed.\u003C/li>\n\u003C/ol>\n\u003Ch2>Async Job Flow\u003C/h2>\n\u003Cul>\n\u003Cli>Async work is used only for selected heavy operations, currently subdivision and larger boolean requests.\u003C/li>\n\u003Cli>Boolean requests can also move off-thread when their configured face threshold is exceeded.\u003C/li>\n\u003Cli>Each job stores the mesh revision it was spawned from.\u003C/li>\n\u003Cli>On completion:\u003Cul>\n\u003Cli>if the entity still exists and the revision still matches, the result is applied\u003C/li>\n\u003Cli>if the entity changed in the meantime, the async result is dropped as stale\u003C/li>\n\u003C/ul>\n\u003C/li>\n\u003C/ul>\n\u003Cp>This avoids the common failure mode where slow jobs overwrite newer edits.\u003C/p>\n",title:"Architecture",description:"Architecture documentation",rawMarkdown:"## Layers\n\n`saddle-procgen-mesh-ops` is split into two layers:\n\n1. Pure core:\n   - dense typed-ID half-edge/DCEL-style topology\n   - polygon snapshot rebuild path for complex edits\n   - voxel boolean CSG for closed-mesh union / intersection / difference\n   - validation, traversal, conversion helpers\n2. Thin Bevy runtime:\n   - `EditableMesh` + `MeshOpsTarget` components\n   - `MeshOpsRequest` / `MeshTopologyChanged` / `MeshOpsFailed` messages\n   - async subdivision / boolean handoff\n   - sync back to `Assets\u003CMesh>`\n   - optional gizmo debug draw\n\n## Storage Layout\n\n- Vertices, half-edges, edges, and faces are stored in dense `Vec` arenas.\n- Public IDs are typed `u32` newtypes: `VertexId`, `HalfEdgeId`, `EdgeId`, `FaceId`.\n- Each half-edge stores:\n  - `origin`\n  - `twin`\n  - `next`\n  - `prev`\n  - `face`\n  - `edge`\n  - per-loop attributes (`uv`, `normal`, `tangent`)\n- Each vertex stores one outgoing half-edge plus the per-vertex payload (`position`, optional weight/tag).\n- Each vertex stores one outgoing half-edge plus the per-vertex payload (`position`, optional color, optional weight/tag).\n- Each face stores one representative half-edge, `FaceKind`, and optional material/region metadata.\n\n## Boundary Representation\n\n- Boundary edges are represented by ghost boundary half-edges and explicit boundary faces.\n- This keeps hot traversal paths simple:\n  - every half-edge always has a twin\n  - boundary detection is a face-kind query, not an `Option`\n- `boundary_loops()` walks those explicit boundary faces and returns loop half-edge IDs.\n\n## Invariants\n\n`validate()` checks both storage integrity and manifold expectations.\n\nStorage checks:\n\n- every stored ID reference is in range\n- every half-edge has a valid twin\n- `next` / `prev` rings close correctly\n- every face loop points back to the correct face\n- every vertex’s outgoing half-edge really originates at that vertex\n\nManifold checks:\n\n- each edge has two distinct incident faces\n- one-ring traversal around a vertex visits the same number of outgoing half-edges as a raw scan\n\n## Attribute Layers\n\n- Vertex payloads:\n  - position\n  - optional color\n  - optional scalar weight\n  - optional tag\n- Loop payloads:\n  - UV\n  - normal\n  - tangent with handedness sign\n- Face payloads:\n  - optional material ID\n  - optional region ID\n\nLoop attributes are first-class because UV seams, hard normals, and tangents are corner data, not strictly vertex data.\n\n## Edit Pipeline\n\n- Small, local operations either mutate payloads directly or edit a `MeshSnapshot`.\n- UV projection and vertex painting stay in the lightweight payload-edit path because they do not change topology.\n- Snapshot edits rebuild the half-edge topology with `HalfEdgeMesh::from_snapshot(...)`.\n- Boundary-loop bridging also routes through snapshots so it can author a strip of quads and then immediately revalidate the stitched surface.\n- Boolean CSG samples closed operands into a bounded voxel grid, reconstructs exposed quads, and then rebuilds through the same validated snapshot path.\n- Rebuilds re-run validation immediately, so broken edits fail fast.\n\nThis pass intentionally favors:\n\n- deterministic rebuilds\n- simple reasoning\n- good tests\n\nover:\n\n- maximum in-place mutation performance\n- non-manifold feature breadth\n\n## Import / Export\n\nImport:\n\n- accepts indexed `Mesh` values with `PrimitiveTopology::TriangleList`\n- welds shared topology by exact position equality\n- preserves normals/UVs/tangents as loop attributes where present\n\nExport:\n\n- clones the editable mesh\n- recomputes normals/tangents on demand when the source lacks them\n- triangulates deterministically with a fan per polygon face\n- emits one Bevy vertex per face corner so seams survive export\n- duplicates per-vertex payload colors across those emitted face corners when `Mesh::ATTRIBUTE_COLOR` is present\n\n## ECS Runtime Flow\n\n1. `MeshOpsRequest` arrives for an entity with `EditableMesh` + `MeshOpsTarget`.\n2. Light operations run inline in `MeshOpsSystems::ProcessRequests`.\n3. Heavy subdivision requests may spawn async jobs.\n4. `MeshTopologyChanged` is emitted on success, `MeshOpsFailed` on failure.\n5. `MeshOpsSystems::SyncMeshes` rebuilds the Bevy `Mesh` only when the editable mesh revision changed.\n6. Sync clears the dirty flag and removes the entity `Aabb` when configured so bounds are refreshed.\n\n## Async Job Flow\n\n- Async work is used only for selected heavy operations, currently subdivision and larger boolean requests.\n- Boolean requests can also move off-thread when their configured face threshold is exceeded.\n- Each job stores the mesh revision it was spawned from.\n- On completion:\n  - if the entity still exists and the revision still matches, the result is applied\n  - if the entity changed in the meantime, the async result is dropped as stale\n\nThis avoids the common failure mode where slow jobs overwrite newer edits.\n",slug:"architecture"},uses:{params:["slug"]}}],
+							form: null,
+							error: null
+						});
+					});
+				}
+			</script>
+		</div>
+	</body>
+</html>
